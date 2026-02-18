@@ -24,6 +24,7 @@ public class MedicamentController {
     @FXML private TextField prixField;
     @FXML private TextField stockField;
     @FXML private TextField seuilField;
+    @FXML private DatePicker peremptionPicker;
     @FXML private GridPane editForm;
 
     private final MedicamentService medicamentService = new MedicamentService();
@@ -49,6 +50,7 @@ public class MedicamentController {
                 prixField.setText(newSelection.getPrixPublic().toString());
                 stockField.setText(String.valueOf(newSelection.getStock()));
                 seuilField.setText(String.valueOf(newSelection.getSeuilMin()));
+                peremptionPicker.setValue(newSelection.getDatePeremption());
             }
         });
     }
@@ -65,7 +67,7 @@ public class MedicamentController {
             m.setPrixPublic(new BigDecimal(prixField.getText()));
             m.setStock(Integer.parseInt(stockField.getText()));
             m.setSeuilMin(Integer.parseInt(seuilField.getText()));
-            m.setDatePeremption(LocalDate.now().plusYears(1)); // Default for demo
+            m.setDatePeremption(peremptionPicker.getValue());
             medicamentService.addMedicament(m);
             loadMedicaments();
             clearFields();
@@ -83,6 +85,7 @@ public class MedicamentController {
                 selected.setPrixPublic(new BigDecimal(prixField.getText()));
                 selected.setStock(Integer.parseInt(stockField.getText()));
                 selected.setSeuilMin(Integer.parseInt(seuilField.getText()));
+                selected.setDatePeremption(peremptionPicker.getValue());
                 medicamentService.updateMedicament(selected);
                 loadMedicaments();
             } catch (Exception e) {
@@ -96,6 +99,7 @@ public class MedicamentController {
         prixField.clear();
         stockField.clear();
         seuilField.clear();
+        peremptionPicker.setValue(null);
     }
 
     private void showAlert(String message) {

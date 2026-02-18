@@ -28,7 +28,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testLoginSuccess() {
+    void testLoginSuccess() throws Exception {
         String username = "testuser";
         String password = "password123";
         String hash = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -47,7 +47,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testLoginFailure() {
+    void testLoginFailure() throws Exception {
         String username = "testuser";
         when(userDAO.findByUsername(username)).thenReturn(Optional.empty());
 

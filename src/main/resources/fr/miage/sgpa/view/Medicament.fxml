@@ -33,7 +33,10 @@
         <Label text="Seuil Min:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
         <TextField fx:id="seuilField" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
 
-        <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="4">
+        <Label text="Péremption:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <DatePicker fx:id="peremptionPicker" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="4">
             <Button text="Ajouter" onAction="#handleAdd"/>
             <Button text="Modifier" onAction="#handleUpdate"/>
             <Button text="Supprimer" onAction="#handleDelete" style="-fx-text-fill: red;"/>

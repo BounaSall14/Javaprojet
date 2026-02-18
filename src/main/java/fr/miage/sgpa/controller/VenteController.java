@@ -14,6 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class VenteController {
     @FXML private ComboBox<Medicament> medicamentCombo;
@@ -25,6 +26,12 @@ public class VenteController {
     @FXML private TableColumn<VenteLigne, BigDecimal> itemTotalCol;
     @FXML private Label totalLabel;
     @FXML private CheckBox ordonnanceCheck;
+
+    // History fields
+    @FXML private TableView<Vente> historyTable;
+    @FXML private TableColumn<Vente, LocalDateTime> histDateCol;
+    @FXML private TableColumn<Vente, BigDecimal> histTotalCol;
+    @FXML private TableColumn<Vente, Boolean> histOrdoCol;
 
     private final MedicamentService medicamentService = new MedicamentService();
     private final VenteService venteService = new VenteService();
@@ -42,6 +49,10 @@ public class VenteController {
 
         cartTable.setItems(cartItems);
         loadMedicaments();
+
+        histDateCol.setCellValueFactory(new PropertyValueFactory<>("dateHeure"));
+        histTotalCol.setCellValueFactory(new PropertyValueFactory<>("montantTotal"));
+        histOrdoCol.setCellValueFactory(new PropertyValueFactory<>("surOrdonnance"));
     }
 
     private void loadMedicaments() {
@@ -83,6 +94,11 @@ public class VenteController {
                 .map(item -> item.getPrixUnitaire().multiply(new BigDecimal(item.getQuantite())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         totalLabel.setText(String.format("%.2f €", total));
+    }
+
+    @FXML
+    public void loadHistory() {
+        historyTable.setItems(FXCollections.observableArrayList(venteDAO.findAll()));
     }
 
     @FXML

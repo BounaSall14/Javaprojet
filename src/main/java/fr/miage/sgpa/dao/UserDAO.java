@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserDAO {
-    public Optional<User> findByUsername(String username) {
+    public Optional<User> findByUsername(String username) throws SQLException {
         String sql = "SELECT * FROM users WHERE username = ?";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -17,8 +17,6 @@ public class UserDAO {
                     return Optional.of(mapResultSetToUser(rs));
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return Optional.empty();
     }

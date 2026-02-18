@@ -11,17 +11,23 @@ public class DatabaseConfig {
     private static final HikariDataSource ds;
 
     static {
-        // Default values for Supabase PostgreSQL
-        String url = System.getenv("DB_URL") != null ? System.getenv("DB_URL") : "jdbc:postgresql://localhost:5432/postgres";
-        String user = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "postgres";
-        String password = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "postgres";
+        // Supabase PostgreSQL Configuration
+        String url = "jdbc:postgresql://db.zihonqgcioggsycncheh.supabase.co:5432/postgres?sslmode=require";
+        String user = "postgres";
+        String password = "Emseize.90.";
 
         config.setJdbcUrl(url);
         config.setUsername(user);
         config.setPassword(password);
+
+        // Performance and Stability settings
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setMinimumIdle(5);
+        config.setMaximumPoolSize(10);
+        config.setConnectionTimeout(30000); // 30 seconds
+        config.setIdleTimeout(600000); // 10 minutes
 
         ds = new HikariDataSource(config);
     }

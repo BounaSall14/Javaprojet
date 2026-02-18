@@ -23,7 +23,7 @@ public class DashboardController {
         }
     }
 
-    @FXML private void showHome() { MainApp.loadView("Dashboard.fxml", contentArea); }
+    @FXML private void showHome() { MainApp.loadView("Home.fxml", contentArea); }
     @FXML private void showMedicaments() { MainApp.loadView("Medicament.fxml", contentArea); }
     @FXML private void showFournisseurs() { MainApp.loadView("Fournisseur.fxml", contentArea); }
     @FXML private void showVentes() { MainApp.loadView("Vente.fxml", contentArea); }

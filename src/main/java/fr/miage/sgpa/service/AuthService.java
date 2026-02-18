@@ -18,7 +18,7 @@ public class AuthService {
         this.userDAO = userDAO;
     }
 
-    public boolean login(String username, String password) {
+    public boolean login(String username, String password) throws Exception {
         Optional<User> userOpt = userDAO.findByUsername(username);
         if (userOpt.isPresent()) {
             User user = userOpt.get();

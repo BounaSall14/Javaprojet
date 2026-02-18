@@ -19,10 +19,15 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (authService.login(username, password)) {
-            MainApp.showDashboard();
-        } else {
-            errorLabel.setText("Identifiants incorrects");
+        try {
+            if (authService.login(username, password)) {
+                MainApp.showDashboard();
+            } else {
+                errorLabel.setText("Identifiants incorrects");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            errorLabel.setText("Erreur de connexion : " + e.getMessage());
         }
     }
 }

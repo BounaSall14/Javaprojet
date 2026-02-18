@@ -6,13 +6,12 @@ import fr.miage.sgpa.dao.VenteDAO;
 import fr.miage.sgpa.model.Medicament;
 import fr.miage.sgpa.model.Vente;
 import fr.miage.sgpa.model.VenteLigne;
+import fr.miage.sgpa.dao.ConnectionProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Optional;
-
-import fr.miage.sgpa.dao.ConnectionProvider;
 import java.util.List;
+import java.util.Optional;
 
 public class VenteService {
     private final VenteDAO venteDAO;
@@ -29,7 +28,7 @@ public class VenteService {
         this.connectionProvider = connectionProvider;
     }
 
-    public List<Vente> getAllVentes() {
+    public List<Vente> findAll() {
         return venteDAO.findAll();
     }
 

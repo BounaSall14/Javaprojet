@@ -12,9 +12,11 @@ public class DatabaseConfig {
 
     static {
         // Supabase PostgreSQL Configuration
+        // Note: Check if there's a trailing space or dot in your password if connection fails.
+        // We're using "Emseize.90" as requested in the latest update.
         String url = "jdbc:postgresql://db.zihonqgcioggsycncheh.supabase.co:5432/postgres?sslmode=require";
         String user = "postgres";
-        String password = "Emseize.90.";
+        String password = "Emseize.90";
 
         config.setJdbcUrl(url);
         config.setUsername(user);
@@ -26,8 +28,8 @@ public class DatabaseConfig {
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(10);
-        config.setConnectionTimeout(30000); // 30 seconds
-        config.setIdleTimeout(600000); // 10 minutes
+        config.setConnectionTimeout(30000);
+        config.setIdleTimeout(600000);
 
         ds = new HikariDataSource(config);
     }
@@ -36,6 +38,14 @@ public class DatabaseConfig {
 
     public static Connection getConnection() throws SQLException {
         return ds.getConnection();
+    }
+
+    public static void testConnection() throws SQLException {
+        try (Connection conn = getConnection()) {
+            if (conn.isValid(2)) {
+                System.out.println("Connection to Supabase successful!");
+            }
+        }
     }
 
     public static void close() {

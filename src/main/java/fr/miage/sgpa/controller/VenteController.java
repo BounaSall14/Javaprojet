@@ -15,6 +15,7 @@ import javafx.util.StringConverter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class VenteController {
     @FXML private ComboBox<Medicament> medicamentCombo;
@@ -39,28 +40,36 @@ public class VenteController {
 
     @FXML
     public void initialize() {
+        // Cart Table setup
         itemNomCol.setCellValueFactory(new PropertyValueFactory<>("nomMedicament"));
         itemQuantiteCol.setCellValueFactory(new PropertyValueFactory<>("quantite"));
         itemPrixCol.setCellValueFactory(new PropertyValueFactory<>("prixUnitaire"));
         itemTotalCol.setCellValueFactory(cellData -> {
             VenteLigne ligne = cellData.getValue();
-            return new SimpleObjectProperty<>(ligne.getPrixUnitaire().multiply(new BigDecimal(ligne.getQuantite())));
+            BigDecimal total = ligne.getPrixUnitaire().multiply(BigDecimal.valueOf(ligne.getQuantite()));
+            return new SimpleObjectProperty<>(total);
         });
 
         cartTable.setItems(cartItems);
         loadMedicaments();
 
+        // History Table setup
         histDateCol.setCellValueFactory(new PropertyValueFactory<>("dateHeure"));
         histTotalCol.setCellValueFactory(new PropertyValueFactory<>("montantTotal"));
         histOrdoCol.setCellValueFactory(new PropertyValueFactory<>("surOrdonnance"));
     }
 
     private void loadMedicaments() {
-        medicamentCombo.setItems(FXCollections.observableArrayList(medicamentService.getAllMedicaments()));
-        medicamentCombo.setConverter(new StringConverter<>() {
-            @Override public String toString(Medicament m) { return m == null ? "" : m.getNomCommercial(); }
-            @Override public Medicament fromString(String string) { return null; }
-        });
+        try {
+            List<Medicament> list = medicamentService.getAllMedicaments();
+            medicamentCombo.setItems(FXCollections.observableArrayList(list));
+            medicamentCombo.setConverter(new StringConverter<Medicament>() {
+                @Override public String toString(Medicament m) { return m == null ? "" : m.getNomCommercial(); }
+                @Override public Medicament fromString(String string) { return null; }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -70,36 +79,40 @@ public class VenteController {
             showAlert("Veuillez sélectionner un médicament", Alert.AlertType.WARNING);
             return;
         }
-        int quantite;
         try {
-            quantite = Integer.parseInt(quantiteField.getText());
+            int quantite = Integer.parseInt(quantiteField.getText());
+            if (quantite > 0) {
+                VenteLigne ligne = new VenteLigne();
+                ligne.setMedicamentId(selected.getId());
+                ligne.setNomMedicament(selected.getNomCommercial());
+                ligne.setQuantite(quantite);
+                ligne.setPrixUnitaire(selected.getPrixPublic());
+                cartItems.add(ligne);
+                updateTotal();
+            } else {
+                showAlert("La quantité doit être supérieure à 0", Alert.AlertType.WARNING);
+            }
         } catch (NumberFormatException e) {
             showAlert("Quantité invalide", Alert.AlertType.ERROR);
-            return;
-        }
-
-        if (quantite > 0) {
-            VenteLigne ligne = new VenteLigne();
-            ligne.setMedicamentId(selected.getId());
-            ligne.setNomMedicament(selected.getNomCommercial());
-            ligne.setQuantite(quantite);
-            ligne.setPrixUnitaire(selected.getPrixPublic());
-            cartItems.add(ligne);
-            updateTotal();
         }
     }
 
     private void updateTotal() {
         BigDecimal total = cartItems.stream()
-                .map(item -> item.getPrixUnitaire().multiply(new BigDecimal(item.getQuantite())))
+                .map(item -> item.getPrixUnitaire().multiply(BigDecimal.valueOf(item.getQuantite())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         totalLabel.setText(String.format("%.2f €", total));
     }
 
     @FXML
     public void loadHistory() {
-        if (historyTable != null) {
-            historyTable.setItems(FXCollections.observableArrayList(venteService.findAll()));
+        try {
+            List<Vente> history = venteService.findAll();
+            if (historyTable != null) {
+                historyTable.setItems(FXCollections.observableArrayList(history));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -115,14 +128,13 @@ public class VenteController {
         vente.getLignes().addAll(cartItems);
 
         BigDecimal total = cartItems.stream()
-                .map(item -> item.getPrixUnitaire().multiply(new BigDecimal(item.getQuantite())))
+                .map(item -> item.getPrixUnitaire().multiply(BigDecimal.valueOf(item.getQuantite())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         vente.setMontantTotal(total);
 
         try {
             venteService.effectuerVente(vente);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Vente effectuée avec succès !");
-            alert.showAndWait();
+            showAlert("Vente effectuée avec succès !", Alert.AlertType.INFORMATION);
             cartItems.clear();
             updateTotal();
         } catch (Exception e) {

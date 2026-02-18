@@ -12,7 +12,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
-import javafx.event.Event;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -98,7 +97,7 @@ public class VenteController {
     }
 
     @FXML
-    public void loadHistory(Event event) {
+    public void loadHistory() {
         if (historyTable != null) {
             historyTable.setItems(FXCollections.observableArrayList(venteService.findAll()));
         }

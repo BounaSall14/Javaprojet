@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.miage.sgpa.controller.VenteController">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <Label text="Nouvelle Vente" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Médicament:"/>
+        <ComboBox fx:id="medicamentCombo" prefWidth="200"/>
+        <Label text="Quantité:"/>
+        <TextField fx:id="quantiteField" prefWidth="50" text="1"/>
+        <Button text="Ajouter au panier" onAction="#addToCart"/>
+    </HBox>
+
+    <TableView fx:id="cartTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="itemNomCol" text="Médicament" />
+            <TableColumn fx:id="itemQuantiteCol" text="Quantité" />
+            <TableColumn fx:id="itemPrixCol" text="Prix Unitaire" />
+            <TableColumn fx:id="itemTotalCol" text="Total" />
+        </columns>
+    </TableView>
+
+    <HBox spacing="20" alignment="CENTER_RIGHT">
+        <CheckBox fx:id="ordonnanceCheck" text="Ordonnance fournie"/>
+        <Label text="Total: " style="-fx-font-weight: bold;"/>
+        <Label fx:id="totalLabel" text="0.00 €" style="-fx-font-weight: bold; -fx-font-size: 18;"/>
+        <Button text="Finaliser la vente" onAction="#finalizeSale" style="-fx-background-color: green; -fx-text-fill: white;"/>
+    </HBox>
+</VBox>

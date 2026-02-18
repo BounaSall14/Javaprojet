@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.miage.sgpa.controller.UserController">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <Label text="Gestion des Utilisateurs" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="userTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="usernameCol" text="Nom d'utilisateur" />
+            <TableColumn fx:id="roleCol" text="Rôle" />
+            <TableColumn fx:id="dateCol" text="Créé le" />
+        </columns>
+    </TableView>
+
+    <GridPane hgap="10" vgap="5">
+        <Label text="Utilisateur:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <Label text="Mot de passe:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="Rôle:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <ComboBox fx:id="roleCombo" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+        <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="4">
+            <Button text="Ajouter" onAction="#handleAdd"/>
+            <Button text="Supprimer" onAction="#handleDelete" style="-fx-text-fill: red;"/>
+        </HBox>
+    </GridPane>
+</VBox>

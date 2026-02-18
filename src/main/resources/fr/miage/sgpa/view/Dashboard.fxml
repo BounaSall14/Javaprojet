@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.miage.sgpa.controller.DashboardController" prefHeight="600.0" prefWidth="900.0">
+    <left>
+        <VBox spacing="10" style="-fx-background-color: #f4f4f4;" prefWidth="200">
+            <padding>
+                <Insets top="20" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Menu" style="-fx-font-weight: bold; -fx-font-size: 18;"/>
+            <Button text="Tableau de bord" onAction="#showHome" maxWidth="Infinity"/>
+            <Button text="Médicaments" onAction="#showMedicaments" maxWidth="Infinity"/>
+            <Button text="Fournisseurs" onAction="#showFournisseurs" maxWidth="Infinity"/>
+            <Button text="Ventes" onAction="#showVentes" maxWidth="Infinity"/>
+            <Button text="Commandes" onAction="#showCommandes" maxWidth="Infinity"/>
+            <Button text="Alertes" onAction="#showAlertes" maxWidth="Infinity"/>
+            <Button text="Utilisateurs" onAction="#showUsers" fx:id="usersButton" maxWidth="Infinity"/>
+            <Spacer VBox.vgrow="ALWAYS"/>
+            <Button text="Déconnexion" onAction="#handleLogout" maxWidth="Infinity" style="-fx-text-fill: red;"/>
+        </VBox>
+    </left>
+    <center>
+        <StackPane fx:id="contentArea">
+            <VBox alignment="CENTER">
+                <Label text="Bienvenue dans SGPA Pharmacie" style="-fx-font-size: 24;"/>
+                <Label fx:id="welcomeLabel"/>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

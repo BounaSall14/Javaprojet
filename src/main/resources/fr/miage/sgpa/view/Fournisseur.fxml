@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.miage.sgpa.controller.FournisseurController">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <Label text="Gestion des Fournisseurs" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="fournisseurTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="nomCol" text="Nom" />
+            <TableColumn fx:id="contactCol" text="Contact" />
+            <TableColumn fx:id="adresseCol" text="Adresse" />
+        </columns>
+    </TableView>
+
+    <GridPane hgap="10" vgap="5" fx:id="editForm">
+        <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="nomField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <Label text="Contact:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="contactField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="Adresse:" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2"/>
+        <TextArea fx:id="adresseArea" GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.rowSpan="2" prefRowCount="3" prefWidth="200"/>
+
+        <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="4">
+            <Button text="Ajouter" onAction="#handleAdd"/>
+            <Button text="Modifier" onAction="#handleUpdate"/>
+            <Button text="Supprimer" onAction="#handleDelete" style="-fx-text-fill: red;"/>
+        </HBox>
+    </GridPane>
+</VBox>

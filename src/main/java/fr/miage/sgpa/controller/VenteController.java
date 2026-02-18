@@ -98,7 +98,7 @@ public class VenteController {
 
     @FXML
     public void loadHistory() {
-        historyTable.setItems(FXCollections.observableArrayList(venteDAO.findAll()));
+        historyTable.setItems(FXCollections.observableArrayList(venteService.getAllVentes()));
     }
 
     @FXML

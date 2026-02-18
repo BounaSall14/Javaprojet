@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import fr.miage.sgpa.dao.ConnectionProvider;
+import java.util.List;
 
 public class VenteService {
     private final VenteDAO venteDAO;
@@ -26,6 +27,10 @@ public class VenteService {
         this.venteDAO = venteDAO;
         this.medicamentDAO = medicamentDAO;
         this.connectionProvider = connectionProvider;
+    }
+
+    public List<Vente> getAllVentes() {
+        return venteDAO.findAll();
     }
 
     public void effectuerVente(Vente vente) throws SQLException, Exception {

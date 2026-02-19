@@ -8,10 +8,10 @@ import java.util.Optional;
 
 public class UserDAO {
     public Optional<User> findByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE LOWER(username) = LOWER(?)";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
+            stmt.setString(1, username.trim());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapResultSetToUser(rs));

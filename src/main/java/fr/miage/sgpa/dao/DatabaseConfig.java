@@ -16,27 +16,21 @@ public class DatabaseConfig {
         try {
             HikariConfig config = new HikariConfig();
 
-            // Supabase PostgreSQL Configuration
-            // Password updated to 'Emseize.90' as per latest instructions
-            String url = "jdbc:postgresql://db.zihonqgcioggsycncheh.supabase.co:5432/postgres?sslmode=require";
-            String user = "postgres";
-            String password = "Emseize.90";
+            // Supabase PostgreSQL Configuration - Using URL provided by user
+            String url = "jdbc:postgresql://db.zihonqgcioggsycncheh.supabase.co:5432/postgres?user=postgres&password=Emseize.90";
 
             logger.info("Initializing HikariCP connection pool for Supabase...");
-            logger.info("URL: {}", url);
-            logger.info("User: {}", user);
+            logger.info("Connecting to Supabase host: db.zihonqgcioggsycncheh.supabase.co");
 
             config.setJdbcUrl(url);
-            config.setUsername(user);
-            config.setPassword(password);
 
             // Performance and Stability settings
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-            config.setMinimumIdle(2);
-            config.setMaximumPoolSize(5);
+            config.setMinimumIdle(1);
+            config.setMaximumPoolSize(3);
             config.setConnectionTimeout(20000); // 20 seconds
             config.setIdleTimeout(300000); // 5 minutes
 
@@ -44,7 +38,6 @@ public class DatabaseConfig {
             logger.info("HikariCP connection pool initialized successfully.");
         } catch (Exception e) {
             logger.error("Failed to initialize HikariCP connection pool: {}", e.getMessage(), e);
-            // We don't rethrow here to allow the class to load, but getConnection will fail
         }
     }
 

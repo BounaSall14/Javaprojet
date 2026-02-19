@@ -2,7 +2,6 @@ package fr.miage.sgpa.service;
 
 import fr.miage.sgpa.dao.UserDAO;
 import fr.miage.sgpa.model.User;
-import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,7 @@ public class AuthService {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             logger.info("Utilisateur trouvé en base. Vérification du mot de passe...");
-            if (BCrypt.checkpw(password, user.getPasswordHash())) {
+            if (password != null && password.equals(user.getPasswordHash())) {
                 currentUser = user;
                 logger.info("Connexion réussie !");
                 return true;

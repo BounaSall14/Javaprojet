@@ -35,13 +35,6 @@
             <version>5.1.0</version>
         </dependency>
 
-        <!-- Security -->
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-        </dependency>
-
         <!-- Utils -->
         <dependency>
             <groupId>org.slf4j</groupId>

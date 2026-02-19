@@ -14,9 +14,8 @@ L'application suit l'architecture **MVC (Modèle-Vue-Contrôleur)** :
 ## 3. Technologies utilisées
 - **Java 17+**
 - **JavaFX** (Interface graphique)
-- **PostgreSQL** (Hébergé sur Supabase)
+- **PostgreSQL** (Local ou distant)
 - **HikariCP** (Pool de connexions)
-- **BCrypt** (Sécurité des mots de passe)
 - **Maven** (Build et gestion des dépendances)
 
 ## 4. Diagrammes UML
@@ -76,7 +75,6 @@ usecaseDiagram
 - Authentification obligatoire.
 - Rôles **ADMIN** et **VENDEUR**.
 - Les vendeurs ne peuvent pas modifier le stock de médicaments directement ou gérer les utilisateurs/fournisseurs.
-- Mots de passe hachés avec **BCrypt**.
 
 ## 6. Gestion des Transactions
 Les ventes et réceptions de commandes sont transactionnelles. En cas d'erreur (ex: stock insuffisant détecté au dernier moment), l'ensemble de l'opération est annulée (Rollback) pour garantir l'intégrité des données.

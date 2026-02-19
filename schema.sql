@@ -58,5 +58,4 @@ CREATE TABLE commande_lignes (
 );
 
 -- Insert a default admin user (password: admin123)
--- BCrypt hash for 'admin123' is $2a$10$Anq65xXrCdhvgtgJdm04KOrOaAU33XKzcGCDph56/xXo8GZVu.gom
-INSERT INTO users (username, password_hash, role) VALUES ('admin', '$2a$10$Anq65xXrCdhvgtgJdm04KOrOaAU33XKzcGCDph56/xXo8GZVu.gom', 'ADMIN');
+INSERT INTO users (username, password_hash, role) VALUES ('admin', 'admin123', 'ADMIN');

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Optional;
 
@@ -31,11 +30,10 @@ public class AuthServiceTest {
     void testLoginSuccess() throws Exception {
         String username = "testuser";
         String password = "password123";
-        String hash = BCrypt.hashpw(password, BCrypt.gensalt());
 
         User user = new User();
         user.setUsername(username);
-        user.setPasswordHash(hash);
+        user.setPasswordHash(password);
         user.setRole(User.Role.VENDEUR);
 
         when(userDAO.findByUsername(username)).thenReturn(Optional.of(user));

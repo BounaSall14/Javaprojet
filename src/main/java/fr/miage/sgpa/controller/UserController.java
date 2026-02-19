@@ -6,7 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.time.LocalDateTime;
 
@@ -40,7 +39,7 @@ public class UserController {
     private void handleAdd() {
         User user = new User();
         user.setUsername(usernameField.getText());
-        user.setPasswordHash(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        user.setPasswordHash(passwordField.getText());
         user.setRole(roleCombo.getValue());
         userDAO.save(user);
         loadUsers();

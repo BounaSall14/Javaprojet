@@ -2,6 +2,7 @@ package fr.miage.sgpa.service;
 
 import fr.miage.sgpa.dao.UserDAO;
 import fr.miage.sgpa.model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,8 @@ public class AuthService {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             logger.info("Utilisateur trouvé en base. Vérification du mot de passe...");
-            if (password != null && password.equals(user.getPasswordHash())) {
+            boolean passwordMatches = checkPassword(password, user.getPasswordHash());
+            if (passwordMatches) {
                 currentUser = user;
                 logger.info("Connexion réussie !");
                 return true;
@@ -37,6 +39,33 @@ public class AuthService {
             logger.warn("Aucun utilisateur trouvé avec le nom : {}", username);
         }
         return false;
+    }
+
+    /**
+     * Vérifie un mot de passe en clair contre un hash stocké en base.
+     * Supporte les deux formats : hash BCrypt (commence par $2a$) et texte clair (legacy).
+     */
+    private boolean checkPassword(String plainPassword, String storedHash) {
+        if (plainPassword == null || storedHash == null) return false;
+        // Si le hash est un hash BCrypt valide, on utilise BCrypt.checkpw
+        if (storedHash.startsWith("$2a$") || storedHash.startsWith("$2b$") || storedHash.startsWith("$2y$")) {
+            try {
+                return BCrypt.checkpw(plainPassword, storedHash);
+            } catch (Exception e) {
+                logger.error("Erreur lors de la vérification BCrypt : {}", e.getMessage());
+                return false;
+            }
+        }
+        // Sinon comparaison en texte clair (legacy / mots de passe non hashés)
+        return plainPassword.equals(storedHash);
+    }
+
+    /**
+     * Hash un mot de passe en clair avec BCrypt.
+     * À utiliser lors de la création ou modification d'un utilisateur.
+     */
+    public static String hashPassword(String plainPassword) {
+        return BCrypt.hashpw(plainPassword, BCrypt.gensalt());
     }
 
     public static User getCurrentUser() {

@@ -4,52 +4,81 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.miage.sgpa.controller.VenteController">
-    <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
-    </padding>
-    <Label text="Gestion des Ventes" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+<VBox spacing="10"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="fr.miage.sgpa.controller.VenteController"
+    style="-fx-background-color: #F5F5F5; -fx-padding: 16px;">
+
+    <Label text="Gestion des Ventes" styleClass="label-title"/>
 
     <TabPane VBox.vgrow="ALWAYS">
+
+        <!-- Onglet Nouvelle Vente -->
         <Tab text="Nouvelle Vente" closable="false">
             <VBox spacing="10">
                 <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Médicament:"/>
-                    <ComboBox fx:id="medicamentCombo" prefWidth="200"/>
-                    <Label text="Quantité:"/>
-                    <TextField fx:id="quantiteField" prefWidth="50" text="1"/>
+                    <Label text="Medicament :"/>
+                    <ComboBox fx:id="medicamentCombo" prefWidth="220"/>
+                    <Label text="Quantite :"/>
+                    <TextField fx:id="quantiteField" prefWidth="60" text="1"/>
                     <Button text="Ajouter au panier" onAction="#addToCart"/>
                 </HBox>
 
                 <TableView fx:id="cartTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="itemNomCol" text="Médicament" />
-                        <TableColumn fx:id="itemQuantiteCol" text="Quantité" />
-                        <TableColumn fx:id="itemPrixCol" text="Prix Unitaire" />
-                        <TableColumn fx:id="itemTotalCol" text="Total" />
+                        <TableColumn fx:id="itemNomCol"      text="Medicament"   prefWidth="200"/>
+                        <TableColumn fx:id="itemQuantiteCol" text="Quantite"      prefWidth="80"/>
+                        <TableColumn fx:id="itemPrixCol"     text="Prix Unit."    prefWidth="100"/>
+                        <TableColumn fx:id="itemTotalCol"    text="Total ligne"   prefWidth="110"/>
                     </columns>
                 </TableView>
 
                 <HBox spacing="20" alignment="CENTER_RIGHT">
                     <CheckBox fx:id="ordonnanceCheck" text="Ordonnance fournie"/>
-                    <Label text="Total: " style="-fx-font-weight: bold;"/>
-                    <Label fx:id="totalLabel" text="0.00 €" style="-fx-font-weight: bold; -fx-font-size: 18;"/>
-                    <Button text="Finaliser la vente" onAction="#finalizeSale" style="-fx-background-color: green; -fx-text-fill: white;"/>
+                    <Label text="Total : " style="-fx-font-weight: bold;"/>
+                    <Label fx:id="totalLabel" text="0.00 EUR" style="-fx-font-weight: bold; -fx-font-size: 18px;"/>
+                    <Button text="Finaliser la vente" onAction="#finalizeSale"/>
                 </HBox>
             </VBox>
         </Tab>
+
+        <!-- Onglet Historique — avec panneau detail -->
         <Tab text="Historique des Ventes" closable="false" onSelectionChanged="#loadHistory">
-            <VBox spacing="10">
-                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                <TableView fx:id="historyTable" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="histDateCol" text="Date/Heure" />
-                        <TableColumn fx:id="histTotalCol" text="Montant Total" />
-                        <TableColumn fx:id="histOrdoCol" text="Ordonnance" />
-                    </columns>
-                </TableView>
-            </VBox>
+            <SplitPane orientation="VERTICAL" dividerPositions="0.55" VBox.vgrow="ALWAYS">
+
+                <!-- Partie haute : liste des ventes -->
+                <VBox spacing="6">
+                    <padding><Insets top="10" right="10" bottom="4" left="10"/></padding>
+                    <Label text="Ventes" style="-fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                    <TableView fx:id="historyTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="histDateCol"  text="Date / Heure"   prefWidth="160"/>
+                            <TableColumn fx:id="histTotalCol" text="Montant (EUR)"   prefWidth="120"/>
+                            <TableColumn fx:id="histOrdoCol"  text="Ordonnance"      prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <!-- Partie basse : detail des lignes de la vente selectionnee -->
+                <VBox spacing="6">
+                    <padding><Insets top="4" right="10" bottom="10" left="10"/></padding>
+                    <Label text="Detail des lignes (cliquez sur une vente ci-dessus)"
+                           style="-fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                    <TableView fx:id="lignesTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="ligneNomCol"   text="Medicament"     prefWidth="200"/>
+                            <TableColumn fx:id="ligneQtyCol"   text="Quantite"        prefWidth="80"/>
+                            <TableColumn fx:id="lignePrixCol"  text="Prix Unit. (EUR)" prefWidth="130"/>
+                            <TableColumn fx:id="ligneTotalCol" text="Total (EUR)"      prefWidth="110"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+            </SplitPane>
         </Tab>
+
     </TabPane>
 </VBox>

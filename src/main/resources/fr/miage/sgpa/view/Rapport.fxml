@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!-- Vue Rapports financiers mensuels -->
+<VBox spacing="14"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="fr.miage.sgpa.controller.RapportController"
+    style="-fx-background-color: #F5F5F5; -fx-padding: 20px;">
+
+    <Label text="Rapports financiers mensuels" styleClass="label-title"/>
+
+    <!-- Table : Mois | Nb ventes | Total EUR -->
+    <TableView fx:id="rapportTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="moisCol"     text="Mois"        prefWidth="120"/>
+            <TableColumn fx:id="nbVentesCol" text="Nb ventes"   prefWidth="120"/>
+            <TableColumn fx:id="totalCol"    text="Total (EUR)"  prefWidth="200"/>
+        </columns>
+    </TableView>
+
+    <!-- Total general -->
+    <Label fx:id="totalGeneralLabel" text="Chargement..."
+           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2E7D32;"/>
+
+    <!-- Boutons export -->
+    <HBox spacing="14" alignment="CENTER_LEFT">
+        <Button text="Exporter en PDF"   onAction="#exportPDF"
+                style="-fx-background-color: #C62828; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 8px; -fx-padding: 8px 18px;"/>
+        <Button text="Exporter en Excel" onAction="#exportExcel"
+                style="-fx-background-color: #1B5E20; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 8px; -fx-padding: 8px 18px;"/>
+    </HBox>
+
+</VBox>

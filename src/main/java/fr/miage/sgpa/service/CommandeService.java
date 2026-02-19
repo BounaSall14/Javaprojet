@@ -47,4 +47,8 @@ public class CommandeService {
     public List<Commande> getAllCommandes() {
         return commandeDAO.findAll();
     }
+
+    public List<CommandeLigne> getLignesByCommandeId(int commandeId) {
+        return commandeDAO.findLignesByCommandeId(commandeId);
+    }
 }

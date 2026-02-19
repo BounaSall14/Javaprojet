@@ -4,29 +4,45 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.miage.sgpa.controller.DashboardController" prefHeight="600.0" prefWidth="900.0">
+<BorderPane
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="fr.miage.sgpa.controller.DashboardController"
+    prefHeight="680.0" prefWidth="1050.0">
+
+    <!-- Sidebar gauche verte -->
     <left>
-        <VBox spacing="10" style="-fx-background-color: #f4f4f4;" prefWidth="200">
+        <VBox spacing="6" styleClass="sidebar" prefWidth="220">
             <padding>
-                <Insets top="20" right="10" bottom="10" left="10"/>
+                <Insets top="24" right="14" bottom="20" left="14"/>
             </padding>
-            <Label text="Menu" style="-fx-font-weight: bold; -fx-font-size: 18;"/>
-            <Button text="Tableau de bord" onAction="#showHome" maxWidth="Infinity"/>
-            <Button text="Médicaments" onAction="#showMedicaments" maxWidth="Infinity"/>
-            <Button text="Fournisseurs" onAction="#showFournisseurs" maxWidth="Infinity"/>
-            <Button text="Ventes" onAction="#showVentes" maxWidth="Infinity"/>
-            <Button text="Commandes" onAction="#showCommandes" maxWidth="Infinity"/>
-            <Button text="Alertes" onAction="#showAlertes" maxWidth="Infinity"/>
-            <Button text="Utilisateurs" onAction="#showUsers" fx:id="usersButton" maxWidth="Infinity"/>
-            <Spacer VBox.vgrow="ALWAYS"/>
-            <Button text="Déconnexion" onAction="#handleLogout" maxWidth="Infinity" style="-fx-text-fill: red;"/>
+
+            <Label text="SGPA Pharmacie" styleClass="sidebar-title"/>
+            <Separator opacity="0.4"/>
+
+            <Button text="Tableau de bord"  onAction="#showHome"         maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="Medicaments"      onAction="#showMedicaments"  maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="Fournisseurs"     onAction="#showFournisseurs" maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="Ventes"           onAction="#showVentes"       maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="Commandes"        onAction="#showCommandes"    maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="Alertes"          onAction="#showAlertes"      maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="Rapports"         onAction="#showRapports"     maxWidth="Infinity" styleClass="sidebar-button"/>
+            <Button text="Utilisateurs"     onAction="#showUsers"
+                    fx:id="usersButton"     maxWidth="Infinity" styleClass="sidebar-button"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Separator opacity="0.4"/>
+            <Button text="Deconnexion" onAction="#handleLogout"
+                    maxWidth="Infinity" styleClass="sidebar-logout"/>
         </VBox>
     </left>
+
+    <!-- Zone de contenu -->
     <center>
-        <StackPane fx:id="contentArea">
-            <VBox alignment="CENTER">
-                <Label text="Bienvenue dans SGPA Pharmacie" style="-fx-font-size: 24;"/>
-                <Label fx:id="welcomeLabel"/>
+        <StackPane fx:id="contentArea" styleClass="content-area">
+            <VBox alignment="CENTER" spacing="16">
+                <Label text="Bienvenue dans SGPA Pharmacie" styleClass="label-header"/>
+                <Label fx:id="welcomeLabel" style="-fx-text-fill: #616161; -fx-font-size: 14px;"/>
             </VBox>
         </StackPane>
     </center>

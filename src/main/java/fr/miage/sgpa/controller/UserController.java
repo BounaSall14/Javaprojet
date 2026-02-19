@@ -2,6 +2,7 @@ package fr.miage.sgpa.controller;
 
 import fr.miage.sgpa.dao.UserDAO;
 import fr.miage.sgpa.model.User;
+import fr.miage.sgpa.service.AuthService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -39,7 +40,7 @@ public class UserController {
     private void handleAdd() {
         User user = new User();
         user.setUsername(usernameField.getText());
-        user.setPasswordHash(passwordField.getText());
+        user.setPasswordHash(AuthService.hashPassword(passwordField.getText()));
         user.setRole(roleCombo.getValue());
         userDAO.save(user);
         loadUsers();

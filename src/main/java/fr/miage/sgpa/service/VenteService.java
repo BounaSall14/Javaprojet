@@ -32,6 +32,10 @@ public class VenteService {
         return venteDAO.findAll();
     }
 
+    public List<VenteLigne> getLignesByVenteId(int venteId) {
+        return venteDAO.findLignesByVenteId(venteId);
+    }
+
     public void effectuerVente(Vente vente) throws SQLException, Exception {
         try (Connection conn = connectionProvider.getConnection()) {
             conn.setAutoCommit(false);

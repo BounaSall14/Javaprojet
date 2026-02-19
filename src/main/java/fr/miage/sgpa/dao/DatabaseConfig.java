@@ -5,11 +5,17 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class DatabaseConfig {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
@@ -71,8 +77,49 @@ public class DatabaseConfig {
 
             ds = new HikariDataSource(config);
             logger.info("HikariCP connection pool initialized successfully.");
+
+            // Auto-initialize database schema on startup
+            initializeSchema();
+
         } catch (Exception e) {
             logger.error("Failed to initialize HikariCP connection pool: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Reads schema.sql from the classpath and executes each SQL statement.
+     * Uses IF NOT EXISTS on all CREATE TABLE statements, so it is safe to run on every startup.
+     */
+    private static void initializeSchema() {
+        logger.info("Initializing database schema...");
+        try (InputStream is = DatabaseConfig.class.getClassLoader().getResourceAsStream("schema.sql")) {
+            if (is == null) {
+                logger.warn("schema.sql not found on classpath, skipping schema initialization.");
+                return;
+            }
+            String sql;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                sql = reader.lines().collect(Collectors.joining("\n"));
+            }
+
+            // Split on semicolons to get individual statements, skipping comments and blanks
+            String[] statements = sql.split(";");
+            try (Connection conn = ds.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                for (String statement : statements) {
+                    String trimmed = statement.trim();
+                    // Skip empty lines and pure comment blocks
+                    String withoutComments = trimmed.replaceAll("--[^\n]*", "").trim();
+                    if (!withoutComments.isEmpty()) {
+                        stmt.execute(trimmed);
+                    }
+                }
+            }
+            logger.info("Database schema initialized successfully.");
+        } catch (IOException e) {
+            logger.error("Failed to read schema.sql: {}", e.getMessage(), e);
+        } catch (SQLException e) {
+            logger.error("Failed to execute schema.sql: {}", e.getMessage(), e);
         }
     }
 

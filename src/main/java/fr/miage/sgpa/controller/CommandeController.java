@@ -19,36 +19,58 @@ import javafx.util.StringConverter;
 import java.time.LocalDateTime;
 
 public class CommandeController {
-    @FXML private TableView<Commande> commandeTable;
-    @FXML private TableColumn<Commande, Integer> idCol;
-    @FXML private TableColumn<Commande, String> fournisseurCol;
+
+    // ── Liste des commandes ────────────────────────────────
+    @FXML private TableView<Commande>                commandeTable;
+    @FXML private TableColumn<Commande, Integer>     idCol;
+    @FXML private TableColumn<Commande, String>      fournisseurCol;
     @FXML private TableColumn<Commande, LocalDateTime> dateCol;
     @FXML private TableColumn<Commande, Commande.Statut> statutCol;
     @FXML private HBox adminControls;
-    @FXML private Tab newOrderTab;
+    @FXML private Tab  newOrderTab;
 
-    // New order fields
-    @FXML private ComboBox<Fournisseur> fournisseurCombo;
-    @FXML private ComboBox<Medicament> medicamentCombo;
-    @FXML private TextField quantiteField;
+    // ── Détail lignes de la commande sélectionnée ─────────
+    @FXML private TableView<CommandeLigne>           lignesTable;
+    @FXML private TableColumn<CommandeLigne, String>  ligneNomCol;
+    @FXML private TableColumn<CommandeLigne, Integer> ligneQtyCol;
+
+    // ── Nouvelle commande ──────────────────────────────────
+    @FXML private ComboBox<Fournisseur>  fournisseurCombo;
+    @FXML private ComboBox<Medicament>   medicamentCombo;
+    @FXML private TextField              quantiteField;
     @FXML private TableView<CommandeLigne> newLignesTable;
-    @FXML private TableColumn<CommandeLigne, String> newMedCol;
+    @FXML private TableColumn<CommandeLigne, String>  newMedCol;
     @FXML private TableColumn<CommandeLigne, Integer> newQtyCol;
 
-    private final CommandeService commandeService = new CommandeService();
+    private final CommandeService   commandeService   = new CommandeService();
     private final MedicamentService medicamentService = new MedicamentService();
-    private final FournisseurDAO fournisseurDAO = new FournisseurDAO();
+    private final FournisseurDAO    fournisseurDAO    = new FournisseurDAO();
     private final ObservableList<CommandeLigne> newLignes = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
+        // Table commandes
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         fournisseurCol.setCellValueFactory(new PropertyValueFactory<>("nomFournisseur"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
         statutCol.setCellValueFactory(new PropertyValueFactory<>("statut"));
-
         loadCommandes();
 
+        // Table lignes détail
+        ligneNomCol.setCellValueFactory(new PropertyValueFactory<>("nomMedicament"));
+        ligneQtyCol.setCellValueFactory(new PropertyValueFactory<>("quantite"));
+
+        // Sur sélection d'une commande → charger ses lignes
+        commandeTable.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
+            if (selected != null) {
+                lignesTable.setItems(FXCollections.observableArrayList(
+                        commandeService.getLignesByCommandeId(selected.getId())));
+            } else {
+                lignesTable.setItems(FXCollections.emptyObservableList());
+            }
+        });
+
+        // Restrictions vendeur
         if (!AuthService.isAdmin()) {
             adminControls.setVisible(false);
             adminControls.setManaged(false);
@@ -88,7 +110,7 @@ public class CommandeController {
                 cl.setQuantite(qty);
                 newLignes.add(cl);
             } catch (NumberFormatException e) {
-                showAlert("Quantité invalide");
+                showAlert("Quantite invalide");
             }
         }
     }
@@ -97,27 +119,25 @@ public class CommandeController {
     private void handleCreateOrder() {
         Fournisseur f = fournisseurCombo.getValue();
         if (f == null || newLignes.isEmpty()) {
-            showAlert("Veuillez sélectionner un fournisseur et au moins un médicament.");
+            showAlert("Veuillez selectionner un fournisseur et au moins un medicament.");
             return;
         }
-
         Commande c = new Commande();
         c.setFournisseurId(f.getId());
         c.getLignes().addAll(newLignes);
-
         commandeService.passerCommande(c);
-        showAlert("Commande créée avec succès.");
+        showAlert("Commande creee avec succes.");
         newLignes.clear();
         loadCommandes();
     }
 
     private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
-        alert.showAndWait();
+        new Alert(Alert.AlertType.INFORMATION, message).showAndWait();
     }
 
     private void loadCommandes() {
         commandeTable.setItems(FXCollections.observableArrayList(commandeService.getAllCommandes()));
+        if (lignesTable != null) lignesTable.setItems(FXCollections.emptyObservableList());
     }
 
     @FXML
@@ -127,11 +147,9 @@ public class CommandeController {
             try {
                 commandeService.receptionnerCommande(selected.getId());
                 loadCommandes();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Commande réceptionnée, stock mis à jour.");
-                alert.showAndWait();
+                new Alert(Alert.AlertType.INFORMATION, "Commande receptionee, stock mis a jour.").showAndWait();
             } catch (Exception e) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur : " + e.getMessage());
-                alert.showAndWait();
+                new Alert(Alert.AlertType.ERROR, "Erreur : " + e.getMessage()).showAndWait();
             }
         }
     }

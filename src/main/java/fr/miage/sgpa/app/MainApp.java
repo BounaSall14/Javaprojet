@@ -8,9 +8,13 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class MainApp extends Application {
     private static Stage primaryStage;
+
+    /** Chemin vers la feuille de style globale */
+    private static final String CSS_PATH = "/fr/miage/sgpa/view/style.css";
 
     @Override
     public void start(Stage stage) {
@@ -19,10 +23,20 @@ public class MainApp extends Application {
         showLogin();
     }
 
+    /** Charge le CSS et l'applique à une scène */
+    private static void applyCSS(Scene scene) {
+        URL css = MainApp.class.getResource(CSS_PATH);
+        if (css != null) {
+            scene.getStylesheets().add(css.toExternalForm());
+        }
+    }
+
     public static void showLogin() {
         try {
             Parent root = FXMLLoader.load(MainApp.class.getResource("/fr/miage/sgpa/view/Login.fxml"));
-            primaryStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            applyCSS(scene);
+            primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -32,7 +46,9 @@ public class MainApp extends Application {
     public static void showDashboard() {
         try {
             Parent root = FXMLLoader.load(MainApp.class.getResource("/fr/miage/sgpa/view/Dashboard.fxml"));
-            primaryStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            applyCSS(scene);
+            primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();

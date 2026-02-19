@@ -112,7 +112,8 @@ public class MedicamentDAO {
         m.setDosage(rs.getString("dosage"));
         m.setPrixPublic(rs.getBigDecimal("prix_public"));
         m.setNecessiteOrdonnance(rs.getBoolean("necessite_ordonnance"));
-        m.setDatePeremption(rs.getDate("date_peremption").toLocalDate());
+        Date d = rs.getDate("date_peremption");
+        m.setDatePeremption(d != null ? d.toLocalDate() : null);
         m.setStock(rs.getInt("stock"));
         m.setSeuilMin(rs.getInt("seuil_min"));
         return m;

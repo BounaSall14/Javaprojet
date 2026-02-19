@@ -1,41 +1,60 @@
 package fr.miage.sgpa.controller;
 
-import fr.miage.sgpa.model.Medicament;
+import fr.miage.sgpa.model.AlerteMedicament;
 import fr.miage.sgpa.service.AlerteService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.util.List;
 
+/**
+ * Contrôleur de la vue Alertes.
+ * Affiche une table unifiée : stock bas + péremption proche.
+ */
 public class AlerteController {
-    @FXML private TableView<Medicament> stockAlertTable;
-    @FXML private TableColumn<Medicament, String> stockNomCol;
-    @FXML private TableColumn<Medicament, Integer> stockActuelCol;
-    @FXML private TableColumn<Medicament, Integer> stockSeuilCol;
 
-    @FXML private TableView<Medicament> peremptionAlertTable;
-    @FXML private TableColumn<Medicament, String> peremptionNomCol;
-    @FXML private TableColumn<Medicament, LocalDate> peremptionDateCol;
+    private static final Logger logger = LoggerFactory.getLogger(AlerteController.class);
+
+    @FXML private Label totalLabel;
+
+    @FXML private TableView<AlerteMedicament>                     alerteTable;
+    @FXML private TableColumn<AlerteMedicament, String>           alerteNomCol;
+    @FXML private TableColumn<AlerteMedicament, Integer>          alerteStockCol;
+    @FXML private TableColumn<AlerteMedicament, Integer>          alerteSeuilCol;
+    @FXML private TableColumn<AlerteMedicament, LocalDate>        alerteDateCol;
+    @FXML private TableColumn<AlerteMedicament, AlerteMedicament.TypeAlerte> alerteTypeCol;
 
     private final AlerteService alerteService = new AlerteService();
 
     @FXML
     public void initialize() {
-        stockNomCol.setCellValueFactory(new PropertyValueFactory<>("nomCommercial"));
-        stockActuelCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
-        stockSeuilCol.setCellValueFactory(new PropertyValueFactory<>("seuilMin"));
+        logger.info("Chargement de l'onglet Alertes...");
 
-        peremptionNomCol.setCellValueFactory(new PropertyValueFactory<>("nomCommercial"));
-        peremptionDateCol.setCellValueFactory(new PropertyValueFactory<>("datePeremption"));
+        alerteNomCol.setCellValueFactory(new PropertyValueFactory<>("nomCommercial"));
+        alerteStockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        alerteSeuilCol.setCellValueFactory(new PropertyValueFactory<>("seuilMin"));
+        alerteDateCol.setCellValueFactory(new PropertyValueFactory<>("datePeremption"));
+        alerteTypeCol.setCellValueFactory(new PropertyValueFactory<>("typeAlerte"));
 
-        loadAlerts();
+        loadAlertes();
     }
 
-    private void loadAlerts() {
-        stockAlertTable.setItems(FXCollections.observableArrayList(alerteService.getAlertesStock()));
-        peremptionAlertTable.setItems(FXCollections.observableArrayList(alerteService.getAlertesPeremption()));
+    private void loadAlertes() {
+        try {
+            List<AlerteMedicament> alertes = alerteService.getAllAlertes();
+            alerteTable.setItems(FXCollections.observableArrayList(alertes));
+            totalLabel.setText(alertes.size() + " alerte(s) active(s)");
+            logger.info("{} alertes chargees", alertes.size());
+        } catch (Exception e) {
+            logger.error("Erreur lors du chargement des alertes", e);
+            totalLabel.setText("Erreur de chargement");
+        }
     }
 }

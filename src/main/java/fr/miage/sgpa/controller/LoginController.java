@@ -22,8 +22,8 @@ public class LoginController {
 
     @FXML
     private void handleLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String username = usernameField.getText() != null ? usernameField.getText().trim() : "";
+        String password = passwordField.getText() != null ? passwordField.getText().trim() : "";
 
         if (username.isEmpty() || password.isEmpty()) {
             errorLabel.setText("Veuillez remplir tous les champs.");

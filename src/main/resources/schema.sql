@@ -60,4 +60,3 @@ CREATE TABLE IF NOT EXISTS commande_lignes (
 -- Insert default admin user (password: admin123) if not already present
 INSERT INTO users (username, password_hash, role) VALUES ('admin', 'admin123', 'ADMIN')
 ON CONFLICT (username) DO NOTHING;
-

@@ -4,53 +4,84 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.miage.sgpa.controller.CommandeController">
-    <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
-    </padding>
-    <Label text="Gestion des Commandes" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+<VBox spacing="10"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="fr.miage.sgpa.controller.CommandeController"
+    style="-fx-background-color: #F5F5F5; -fx-padding: 16px;">
+
+    <Label text="Gestion des Commandes" styleClass="label-title"/>
 
     <TabPane VBox.vgrow="ALWAYS">
+
+        <!-- Onglet liste avec detail des lignes -->
         <Tab text="Liste des Commandes" closable="false">
-            <VBox spacing="10">
-                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                <TableView fx:id="commandeTable" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="idCol" text="ID" />
-                        <TableColumn fx:id="fournisseurCol" text="Fournisseur" />
-                        <TableColumn fx:id="dateCol" text="Date" />
-                        <TableColumn fx:id="statutCol" text="Statut" />
-                    </columns>
-                </TableView>
-                <HBox spacing="10" alignment="CENTER_LEFT" fx:id="adminControls">
-                    <Button text="Réceptionner la commande" onAction="#handleReception" style="-fx-background-color: blue; -fx-text-fill: white;"/>
-                </HBox>
-            </VBox>
+            <SplitPane orientation="VERTICAL" dividerPositions="0.50" VBox.vgrow="ALWAYS">
+
+                <!-- Haut : table des commandes -->
+                <VBox spacing="6">
+                    <padding><Insets top="10" right="10" bottom="4" left="10"/></padding>
+                    <Label text="Commandes" style="-fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                    <TableView fx:id="commandeTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="idCol"           text="ID"          prefWidth="50"/>
+                            <TableColumn fx:id="fournisseurCol"  text="Fournisseur"  prefWidth="200"/>
+                            <TableColumn fx:id="dateCol"         text="Date"         prefWidth="160"/>
+                            <TableColumn fx:id="statutCol"       text="Statut"       prefWidth="120"/>
+                        </columns>
+                    </TableView>
+                    <HBox spacing="10" alignment="CENTER_LEFT" fx:id="adminControls">
+                        <Button text="Receptionner la commande" onAction="#handleReception"
+                                style="-fx-background-color: #1565C0; -fx-text-fill: white;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Bas : detail lignes de la commande selectionnee -->
+                <VBox spacing="6">
+                    <padding><Insets top="4" right="10" bottom="10" left="10"/></padding>
+                    <Label text="Detail des lignes (cliquez sur une commande ci-dessus)"
+                           style="-fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                    <TableView fx:id="lignesTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="ligneNomCol" text="Medicament" prefWidth="260"/>
+                            <TableColumn fx:id="ligneQtyCol" text="Quantite"    prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+            </SplitPane>
         </Tab>
+
+        <!-- Onglet Nouvelle Commande -->
         <Tab text="Nouvelle Commande" closable="false" fx:id="newOrderTab">
             <VBox spacing="10">
                 <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Fournisseur:"/>
-                    <ComboBox fx:id="fournisseurCombo" prefWidth="200"/>
+                    <Label text="Fournisseur :"/>
+                    <ComboBox fx:id="fournisseurCombo" prefWidth="220"/>
                 </HBox>
+
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Médicament:"/>
-                    <ComboBox fx:id="medicamentCombo" prefWidth="200"/>
-                    <Label text="Quantité:"/>
-                    <TextField fx:id="quantiteField" prefWidth="50" text="10"/>
-                    <Button text="Ajouter à la commande" onAction="#addToOrder"/>
+                    <Label text="Medicament :"/>
+                    <ComboBox fx:id="medicamentCombo" prefWidth="220"/>
+                    <Label text="Quantite :"/>
+                    <TextField fx:id="quantiteField" prefWidth="60" text="10"/>
+                    <Button text="Ajouter" onAction="#addToOrder"/>
                 </HBox>
+
                 <TableView fx:id="newLignesTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="newMedCol" text="Médicament" />
-                        <TableColumn fx:id="newQtyCol" text="Quantité" />
+                        <TableColumn fx:id="newMedCol" text="Medicament" prefWidth="260"/>
+                        <TableColumn fx:id="newQtyCol" text="Quantite"    prefWidth="100"/>
                     </columns>
                 </TableView>
+
                 <HBox alignment="CENTER_RIGHT">
-                    <Button text="Passer la commande" onAction="#handleCreateOrder" style="-fx-background-color: green; -fx-text-fill: white;"/>
+                    <Button text="Passer la commande" onAction="#handleCreateOrder"/>
                 </HBox>
             </VBox>
         </Tab>
+
     </TabPane>
 </VBox>

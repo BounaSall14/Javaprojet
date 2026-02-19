@@ -29,6 +29,7 @@ public class DashboardController {
     @FXML private void showVentes() { MainApp.loadView("Vente.fxml", contentArea); }
     @FXML private void showCommandes() { MainApp.loadView("Commande.fxml", contentArea); }
     @FXML private void showAlertes() { MainApp.loadView("Alerte.fxml", contentArea); }
+    @FXML private void showRapports() { MainApp.loadView("Rapport.fxml", contentArea); }
     @FXML private void showUsers() { MainApp.loadView("User.fxml", contentArea); }
 
     @FXML

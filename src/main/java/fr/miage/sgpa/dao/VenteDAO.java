@@ -47,6 +47,32 @@ public class VenteDAO {
         return ventes;
     }
 
+    public List<VenteLigne> findLignesByVenteId(int venteId) {
+        List<VenteLigne> lignes = new ArrayList<>();
+        String sql = "SELECT vl.*, m.nom_commercial " +
+                     "FROM vente_lignes vl " +
+                     "JOIN medicaments m ON vl.medicament_id = m.id " +
+                     "WHERE vl.vente_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, venteId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    VenteLigne vl = new VenteLigne();
+                    vl.setVenteId(rs.getInt("vente_id"));
+                    vl.setMedicamentId(rs.getInt("medicament_id"));
+                    vl.setNomMedicament(rs.getString("nom_commercial"));
+                    vl.setQuantite(rs.getInt("quantite"));
+                    vl.setPrixUnitaire(rs.getBigDecimal("prix_unitaire"));
+                    lignes.add(vl);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lignes;
+    }
+
     private Vente mapResultSetToVente(ResultSet rs) throws SQLException {
         Vente v = new Vente();
         v.setId(rs.getInt("id"));

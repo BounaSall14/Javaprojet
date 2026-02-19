@@ -4,25 +4,55 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox alignment="CENTER" spacing="20" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
-    <Label text="SGPA Pharmacie - Tableau de bord" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
-    <Label text="Bienvenue dans votre outil de gestion." style="-fx-font-size: 16;"/>
+<!-- Tableau de bord avec statistiques temps réel -->
+<VBox spacing="24"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="fr.miage.sgpa.controller.HomeController"
+    style="-fx-background-color: #F5F5F5; -fx-padding: 30px;">
 
-    <HBox spacing="20" alignment="CENTER">
-        <VBox style="-fx-background-color: #e3f2fd; -fx-padding: 20; -fx-background-radius: 10;" prefWidth="200" alignment="CENTER">
-            <Label text="Médicaments" style="-fx-font-weight: bold;"/>
-            <Label text="Gérez votre catalogue"/>
+    <Label text="Tableau de bord" styleClass="label-header"/>
+    <Label text="Vue d ensemble de votre pharmacie"
+           style="-fx-text-fill: #757575; -fx-font-size: 14px;"/>
+
+    <!-- Cartes de statistiques -->
+    <HBox spacing="20" alignment="CENTER_LEFT">
+
+        <!-- Médicaments -->
+        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+              prefWidth="210" alignment="CENTER" spacing="8">
+            <Label text="Medicaments" style="-fx-font-weight: bold; -fx-text-fill: #2E7D32; -fx-font-size: 13px;"/>
+            <Label fx:id="statMedicamentsLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B5E20;"/>
+            <Label text="references en catalogue" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
         </VBox>
-        <VBox style="-fx-background-color: #f1f8e9; -fx-padding: 20; -fx-background-radius: 10;" prefWidth="200" alignment="CENTER">
-            <Label text="Ventes" style="-fx-font-weight: bold;"/>
-            <Label text="Enregistrez de nouvelles transactions"/>
+
+        <!-- Ventes -->
+        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+              prefWidth="210" alignment="CENTER" spacing="8">
+            <Label text="Ventes" style="-fx-font-weight: bold; -fx-text-fill: #1565C0; -fx-font-size: 13px;"/>
+            <Label fx:id="statVentesLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #0D47A1;"/>
+            <Label text="transactions enregistrees" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
         </VBox>
-        <VBox style="-fx-background-color: #fff3e0; -fx-padding: 20; -fx-background-radius: 10;" prefWidth="200" alignment="CENTER">
-            <Label text="Stocks" style="-fx-font-weight: bold;"/>
-            <Label text="Surveillez vos inventaires"/>
+
+        <!-- Stock bas -->
+        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+              prefWidth="210" alignment="CENTER" spacing="8">
+            <Label text="Alertes Stock" style="-fx-font-weight: bold; -fx-text-fill: #E65100; -fx-font-size: 13px;"/>
+            <Label fx:id="statStockLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #BF360C;"/>
+            <Label text="articles sous seuil minimum" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
         </VBox>
+
+        <!-- Péremption -->
+        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+              prefWidth="210" alignment="CENTER" spacing="8">
+            <Label text="Peremption proche" style="-fx-font-weight: bold; -fx-text-fill: #6A1B9A; -fx-font-size: 13px;"/>
+            <Label fx:id="statPeremptionLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #4A148C;"/>
+            <Label text="expirent dans moins de 3 mois" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
+        </VBox>
+
     </HBox>
 </VBox>

@@ -16,24 +16,20 @@ public class DatabaseConfig {
         try {
             HikariConfig config = new HikariConfig();
 
-            // Supabase PostgreSQL Configuration - Using URL provided by user
-            String url = "jdbc:postgresql://db.zihonqgcioggsycncheh.supabase.co:5432/postgres?user=postgres&password=Emseize.90";
+            // Supabase PostgreSQL Configuration - Clean version
+            config.setJdbcUrl("jdbc:postgresql://db.zihonqgcioggsycncheh.supabase.co:5432/postgres?sslmode=require");
+            config.setUsername("postgres");
+            config.setPassword("Emseize.90."); // Password with trailing dot
 
-            logger.info("Initializing HikariCP connection pool for Supabase...");
-            logger.info("Connecting to Supabase host: db.zihonqgcioggsycncheh.supabase.co");
+            config.setMaximumPoolSize(5);
+            config.setConnectionTimeout(30000);
 
-            config.setJdbcUrl(url);
-
-            // Performance and Stability settings
+            // Optimization properties
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-            config.setMinimumIdle(1);
-            config.setMaximumPoolSize(3);
-            config.setConnectionTimeout(20000); // 20 seconds
-            config.setIdleTimeout(300000); // 5 minutes
-
+            logger.info("Initializing HikariCP for Supabase...");
             ds = new HikariDataSource(config);
             logger.info("HikariCP connection pool initialized successfully.");
         } catch (Exception e) {

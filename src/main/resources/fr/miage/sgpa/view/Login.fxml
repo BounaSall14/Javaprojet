@@ -24,7 +24,8 @@
         <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
     </GridPane>
 
-    <Button onAction="#handleLogin" text="Se connecter" prefWidth="150"/>
+    <Button fx:id="loginButton" onAction="#handleLogin" text="Se connecter" prefWidth="150"/>
 
-    <Label fx:id="errorLabel" textFill="RED" />
+    <ProgressIndicator fx:id="progressIndicator" visible="false" prefHeight="30" prefWidth="30"/>
+    <Label fx:id="errorLabel" textFill="RED" wrapText="true" textAlignment="CENTER"/>
 </VBox>

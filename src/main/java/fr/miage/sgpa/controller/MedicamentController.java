@@ -53,6 +53,28 @@ public class MedicamentController {
                 peremptionPicker.setValue(newSelection.getDatePeremption());
             }
         });
+
+        // ── Coloration conditionnelle des lignes ───────────────────────
+        // Priorité : périmé (rouge) > bientôt périmé (violet) > stock faible (orange)
+        medicamentTable.setRowFactory(tv -> new javafx.scene.control.TableRow<Medicament>() {
+            @Override
+            protected void updateItem(Medicament m, boolean empty) {
+                super.updateItem(m, empty);
+                getStyleClass().removeAll("row-perime", "row-bientot-perime", "row-stock-faible");
+                if (m == null || empty) return;
+
+                java.time.LocalDate today  = java.time.LocalDate.now();
+                java.time.LocalDate limite = today.plusMonths(3);
+
+                if (m.getDatePeremption() != null && m.getDatePeremption().isBefore(today)) {
+                    getStyleClass().add("row-perime");
+                } else if (m.getDatePeremption() != null && m.getDatePeremption().isBefore(limite)) {
+                    getStyleClass().add("row-bientot-perime");
+                } else if (m.getStock() <= m.getSeuilMin()) {
+                    getStyleClass().add("row-stock-faible");
+                }
+            }
+        });
     }
 
     private void loadMedicaments() {

@@ -4,55 +4,112 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<!-- Tableau de bord avec statistiques temps réel -->
-<VBox spacing="24"
+<!-- Tableau de bord — Statistiques temps reel -->
+<VBox
     xmlns="http://javafx.com/javafx/17"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="fr.miage.sgpa.controller.HomeController"
-    style="-fx-background-color: #F5F5F5; -fx-padding: 30px;">
+    style="-fx-background-color: #F4F7F5; -fx-padding: 32px;"
+    spacing="6">
 
+    <!-- En-tete -->
     <Label text="Tableau de bord" styleClass="label-header"/>
-    <Label text="Vue d ensemble de votre pharmacie"
-           style="-fx-text-fill: #757575; -fx-font-size: 14px;"/>
+    <Label text="Vue d ensemble de la pharmacie en temps reel"
+           style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
 
-    <!-- Cartes de statistiques -->
-    <HBox spacing="20" alignment="CENTER_LEFT">
+    <Region prefHeight="16"/>
 
-        <!-- Médicaments -->
-        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
-                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-              prefWidth="210" alignment="CENTER" spacing="8">
-            <Label text="Medicaments" style="-fx-font-weight: bold; -fx-text-fill: #2E7D32; -fx-font-size: 13px;"/>
-            <Label fx:id="statMedicamentsLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1B5E20;"/>
-            <Label text="references en catalogue" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
+    <!-- Ligne de cartes KPI -->
+    <HBox spacing="18" alignment="CENTER_LEFT">
+
+        <!-- Medicaments -->
+        <VBox styleClass="kpi-card" prefWidth="220" alignment="CENTER" spacing="10">
+            <Label text="Medicaments"
+                   style="-fx-font-weight: bold; -fx-text-fill: #2E7D32; -fx-font-size: 12.5px; -fx-letter-spacing: 0.5;"/>
+            <Label fx:id="statMedicamentsLabel" text="..."
+                   style="-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: #1B5E20;"/>
+            <Label text="references en catalogue"
+                   style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+            <Region prefHeight="4"/>
+            <HBox alignment="CENTER">
+                <Label text="CATALOGUE"
+                       style="-fx-background-color: #D1FAE5; -fx-text-fill: #065F46;
+                              -fx-font-size: 10px; -fx-font-weight: bold;
+                              -fx-background-radius: 20; -fx-padding: 3 10 3 10;"/>
+            </HBox>
         </VBox>
 
         <!-- Ventes -->
-        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
-                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-              prefWidth="210" alignment="CENTER" spacing="8">
-            <Label text="Ventes" style="-fx-font-weight: bold; -fx-text-fill: #1565C0; -fx-font-size: 13px;"/>
-            <Label fx:id="statVentesLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #0D47A1;"/>
-            <Label text="transactions enregistrees" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
+        <VBox styleClass="kpi-card" prefWidth="220" alignment="CENTER" spacing="10">
+            <Label text="Ventes"
+                   style="-fx-font-weight: bold; -fx-text-fill: #1565C0; -fx-font-size: 12.5px;"/>
+            <Label fx:id="statVentesLabel" text="..."
+                   style="-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: #0D47A1;"/>
+            <Label text="transactions enregistrees"
+                   style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+            <Region prefHeight="4"/>
+            <HBox alignment="CENTER">
+                <Label text="VENTES"
+                       style="-fx-background-color: #DBEAFE; -fx-text-fill: #1E40AF;
+                              -fx-font-size: 10px; -fx-font-weight: bold;
+                              -fx-background-radius: 20; -fx-padding: 3 10 3 10;"/>
+            </HBox>
         </VBox>
 
         <!-- Stock bas -->
-        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
-                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-              prefWidth="210" alignment="CENTER" spacing="8">
-            <Label text="Alertes Stock" style="-fx-font-weight: bold; -fx-text-fill: #E65100; -fx-font-size: 13px;"/>
-            <Label fx:id="statStockLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #BF360C;"/>
-            <Label text="articles sous seuil minimum" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
+        <VBox styleClass="kpi-card-warn" prefWidth="220" alignment="CENTER" spacing="10">
+            <Label text="Alertes Stock"
+                   style="-fx-font-weight: bold; -fx-text-fill: #92400E; -fx-font-size: 12.5px;"/>
+            <Label fx:id="statStockLabel" text="..."
+                   style="-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: #78350F;"/>
+            <Label text="articles sous seuil minimum"
+                   style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+            <Region prefHeight="4"/>
+            <HBox alignment="CENTER">
+                <Label text="STOCK FAIBLE"
+                       style="-fx-background-color: #FEF3C7; -fx-text-fill: #92400E;
+                              -fx-font-size: 10px; -fx-font-weight: bold;
+                              -fx-background-radius: 20; -fx-padding: 3 10 3 10;"/>
+            </HBox>
         </VBox>
 
-        <!-- Péremption -->
-        <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 24; -fx-background-radius: 10;
-                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-              prefWidth="210" alignment="CENTER" spacing="8">
-            <Label text="Peremption proche" style="-fx-font-weight: bold; -fx-text-fill: #6A1B9A; -fx-font-size: 13px;"/>
-            <Label fx:id="statPeremptionLabel" text="..." style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #4A148C;"/>
-            <Label text="expirent dans moins de 3 mois" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
+        <!-- Peremption -->
+        <VBox styleClass="kpi-card-danger" prefWidth="220" alignment="CENTER" spacing="10">
+            <Label text="Peremption proche"
+                   style="-fx-font-weight: bold; -fx-text-fill: #6B21A8; -fx-font-size: 12.5px;"/>
+            <Label fx:id="statPeremptionLabel" text="..."
+                   style="-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: #581C87;"/>
+            <Label text="expirent dans moins de 3 mois"
+                   style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+            <Region prefHeight="4"/>
+            <HBox alignment="CENTER">
+                <Label text="A SURVEILLER"
+                       style="-fx-background-color: #F3E8FF; -fx-text-fill: #6B21A8;
+                              -fx-font-size: 10px; -fx-font-weight: bold;
+                              -fx-background-radius: 20; -fx-padding: 3 10 3 10;"/>
+            </HBox>
         </VBox>
 
     </HBox>
+
+    <!-- Section indicative (aucune donnee, juste visuel) -->
+    <Region prefHeight="20"/>
+    <Label text="Legende des couleurs dans le tableau Medicaments"
+           style="-fx-font-weight: bold; -fx-text-fill: #374151; -fx-font-size: 13px;"/>
+
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Label text="  PERIME  "
+               style="-fx-background-color: #FEE2E2; -fx-text-fill: #991B1B;
+                      -fx-font-size: 12px; -fx-font-weight: bold;
+                      -fx-background-radius: 6; -fx-padding: 5 12 5 12;"/>
+        <Label text="  BIENTOT PERIME  "
+               style="-fx-background-color: #F3E8FF; -fx-text-fill: #6B21A8;
+                      -fx-font-size: 12px; -fx-font-weight: bold;
+                      -fx-background-radius: 6; -fx-padding: 5 12 5 12;"/>
+        <Label text="  STOCK FAIBLE  "
+               style="-fx-background-color: #FFEDD5; -fx-text-fill: #92400E;
+                      -fx-font-size: 12px; -fx-font-weight: bold;
+                      -fx-background-radius: 6; -fx-padding: 5 12 5 12;"/>
+    </HBox>
+
 </VBox>

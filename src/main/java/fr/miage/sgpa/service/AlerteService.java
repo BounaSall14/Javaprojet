@@ -32,6 +32,14 @@ public class AlerteService {
                 .collect(Collectors.toList());
     }
 
+    /** Médicaments PÉRIMÉS : date_peremption strict < aujourd'hui. */
+    public List<Medicament> getMedicamentsPerimes() {
+        LocalDate today = LocalDate.now();
+        return medicamentDAO.findAll().stream()
+                .filter(m -> m.getDatePeremption() != null && m.getDatePeremption().isBefore(today))
+                .collect(Collectors.toList());
+    }
+
     /**
      * Retourne tous les médicaments dont la péremption est dans < 3 mois.
      * Pour compatibilité avec le HomeController.

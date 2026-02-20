@@ -4,36 +4,133 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<!-- Vue Rapports financiers mensuels -->
-<VBox spacing="14"
+<VBox
     xmlns="http://javafx.com/javafx/17"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="fr.miage.sgpa.controller.RapportController"
-    style="-fx-background-color: #F5F5F5; -fx-padding: 20px;">
+    style="-fx-background-color:#F4F7F5; -fx-padding:20px;"
+    spacing="12">
 
-    <Label text="Rapports financiers mensuels" styleClass="label-title"/>
+    <Label text="Rapports financiers" styleClass="label-title"/>
 
-    <!-- Table : Mois | Nb ventes | Total EUR -->
-    <TableView fx:id="rapportTable" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="moisCol"     text="Mois"        prefWidth="120"/>
-            <TableColumn fx:id="nbVentesCol" text="Nb ventes"   prefWidth="120"/>
-            <TableColumn fx:id="totalCol"    text="Total (EUR)"  prefWidth="200"/>
-        </columns>
-    </TableView>
+    <!-- ── Sélecteur de période ─────────────────────────── -->
+    <HBox spacing="12" alignment="CENTER_LEFT"
+          style="-fx-background-color:#FFFFFF; -fx-background-radius:10;
+                 -fx-border-color:#E5E7EB; -fx-border-radius:10;
+                 -fx-border-width:1; -fx-padding:14;
+                 -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.05),6,0,0,2);">
+        <Label text="Periode :" style="-fx-font-weight:bold;"/>
+        <Label text="Du"/>
+        <DatePicker fx:id="debutPicker"/>
+        <Label text="Au"/>
+        <DatePicker fx:id="finPicker"/>
+        <Button text="Generer le rapport" onAction="#handleGenerer"
+                style="-fx-font-size:13px; -fx-padding:9 20 9 20;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Exporter PDF"   onAction="#exportPDF"
+                style="-fx-background-color:#C62828; -fx-text-fill:white;
+                       -fx-font-weight:bold; -fx-background-radius:8; -fx-padding:9 16 9 16;"/>
+        <Button text="Exporter Excel" onAction="#exportExcel"
+                style="-fx-background-color:#1B5E20; -fx-text-fill:white;
+                       -fx-font-weight:bold; -fx-background-radius:8; -fx-padding:9 16 9 16;"/>
+    </HBox>
 
-    <!-- Total general -->
-    <Label fx:id="totalGeneralLabel" text="Chargement..."
-           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2E7D32;"/>
+    <!-- ── KPIs ─────────────────────────────────────────── -->
+    <HBox spacing="14">
+        <VBox styleClass="kpi-card" prefWidth="190" alignment="CENTER" spacing="6">
+            <Label text="Nb ventes" style="-fx-font-weight:bold; -fx-text-fill:#2E7D32; -fx-font-size:12px;"/>
+            <Label fx:id="kpiNbVentes" text="—"
+                   style="-fx-font-size:32px; -fx-font-weight:bold; -fx-text-fill:#1B5E20;"/>
+        </VBox>
+        <VBox styleClass="kpi-card" prefWidth="190" alignment="CENTER" spacing="6">
+            <Label text="Chiffre d affaires" style="-fx-font-weight:bold; -fx-text-fill:#1565C0; -fx-font-size:12px;"/>
+            <Label fx:id="kpiCaTotal" text="—"
+                   style="-fx-font-size:28px; -fx-font-weight:bold; -fx-text-fill:#0D47A1;"/>
+            <Label text="EUR" style="-fx-text-fill:#9CA3AF; -fx-font-size:11px;"/>
+        </VBox>
+        <VBox styleClass="kpi-card" prefWidth="190" alignment="CENTER" spacing="6">
+            <Label text="Panier moyen" style="-fx-font-weight:bold; -fx-text-fill:#6B21A8; -fx-font-size:12px;"/>
+            <Label fx:id="kpiPanierMoyen" text="—"
+                   style="-fx-font-size:28px; -fx-font-weight:bold; -fx-text-fill:#581C87;"/>
+            <Label text="EUR / vente" style="-fx-text-fill:#9CA3AF; -fx-font-size:11px;"/>
+        </VBox>
+    </HBox>
 
-    <!-- Boutons export -->
-    <HBox spacing="14" alignment="CENTER_LEFT">
-        <Button text="Exporter en PDF"   onAction="#exportPDF"
-                style="-fx-background-color: #C62828; -fx-text-fill: white; -fx-font-weight: bold;
-                       -fx-background-radius: 8px; -fx-padding: 8px 18px;"/>
-        <Button text="Exporter en Excel" onAction="#exportExcel"
-                style="-fx-background-color: #1B5E20; -fx-text-fill: white; -fx-font-weight: bold;
-                       -fx-background-radius: 8px; -fx-padding: 8px 18px;"/>
+    <!-- ── Corps principal : 2 colonnes ─────────────────── -->
+    <HBox spacing="12" VBox.vgrow="ALWAYS">
+
+        <!-- Colonne gauche : CA mensuel + Top médicaments -->
+        <VBox spacing="10" prefWidth="360">
+
+            <!-- CA par mois -->
+            <VBox spacing="6"
+                  style="-fx-background-color:#FFFFFF; -fx-background-radius:10;
+                         -fx-border-color:#E5E7EB; -fx-border-radius:10; -fx-border-width:1;
+                         -fx-padding:14; -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.05),6,0,0,2);">
+                <Label text="CA par mois" style="-fx-font-weight:bold; -fx-text-fill:#2E7D32;"/>
+                <TableView fx:id="mensuelTable" prefHeight="160">
+                    <columns>
+                        <TableColumn fx:id="mensuelMoisCol" text="Mois"        prefWidth="90"/>
+                        <TableColumn fx:id="mensuelNbCol"   text="Nb ventes"   prefWidth="80"/>
+                        <TableColumn fx:id="mensuelCaCol"   text="Total (EUR)"  prefWidth="120"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Top médicaments -->
+            <VBox spacing="6" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color:#FFFFFF; -fx-background-radius:10;
+                         -fx-border-color:#E5E7EB; -fx-border-radius:10; -fx-border-width:1;
+                         -fx-padding:14; -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.05),6,0,0,2);">
+                <Label text="Top medicaments vendus (CA)" style="-fx-font-weight:bold; -fx-text-fill:#2E7D32;"/>
+                <TableView fx:id="topTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="topNomCol" text="Medicament"  prefWidth="170"/>
+                        <TableColumn fx:id="topQteCol" text="Qte"         prefWidth="50"/>
+                        <TableColumn fx:id="topCaCol"  text="CA (EUR)"    prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+        </VBox>
+
+        <!-- Colonne droite : ventes + détail lignes -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+
+            <!-- Historique ventes -->
+            <VBox spacing="6"
+                  style="-fx-background-color:#FFFFFF; -fx-background-radius:10;
+                         -fx-border-color:#E5E7EB; -fx-border-radius:10; -fx-border-width:1;
+                         -fx-padding:14; -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.05),6,0,0,2);">
+                <Label text="Historique des ventes" style="-fx-font-weight:bold; -fx-text-fill:#2E7D32;"/>
+                <TableView fx:id="ventesTable" prefHeight="200">
+                    <columns>
+                        <TableColumn fx:id="vDateCol"    text="Date / Heure"  prefWidth="160"/>
+                        <TableColumn fx:id="vMontantCol" text="Montant (EUR)" prefWidth="120"/>
+                        <TableColumn fx:id="vOrdoCol"    text="Ordonnance"    prefWidth="90"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Detail lignes de la vente selectionnee -->
+            <VBox spacing="6" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color:#FFFFFF; -fx-background-radius:10;
+                         -fx-border-color:#E5E7EB; -fx-border-radius:10; -fx-border-width:1;
+                         -fx-padding:14; -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.05),6,0,0,2);">
+                <Label text="Detail de la vente selectionnee (cliquez sur une vente)"
+                       style="-fx-font-weight:bold; -fx-text-fill:#2E7D32;"/>
+                <TableView fx:id="lignesTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="lgNomCol"   text="Medicament"    prefWidth="180"/>
+                        <TableColumn fx:id="lgQteCol"   text="Qte"           prefWidth="50"/>
+                        <TableColumn fx:id="lgPrixCol"  text="Prix unit."     prefWidth="100"/>
+                        <TableColumn fx:id="lgTotalCol" text="Total ligne"    prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+        </VBox>
+
     </HBox>
 
 </VBox>

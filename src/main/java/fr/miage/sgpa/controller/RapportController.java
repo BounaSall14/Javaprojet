@@ -5,208 +5,393 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import fr.miage.sgpa.model.RapportMensuel;
+import fr.miage.sgpa.model.TopMedicament;
+import fr.miage.sgpa.model.Vente;
+import fr.miage.sgpa.model.VenteLigne;
 import fr.miage.sgpa.service.RapportService;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Contrôleur des rapports financiers mensuels.
- * Affiche les données et permet l'export PDF et Excel.
- * NOTE: Font est ambigu entre iText et POI → on utilise les noms qualifiés.
+ * Contrôleur du module Rapports financiers enrichi.
+ *
+ * Fonctionnement :
+ * 1. Choisir période (DatePicker début/fin)
+ * 2. Cliquer "Generer" → affiche KPIs + tableaux
+ * 3. Exporter PDF ou Excel
  */
 public class RapportController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RapportController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RapportController.class);
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+    // ── Filtres ───────────────────────────────────────────────────────────
     @FXML
-    private TableView<RapportMensuel> rapportTable;
+    private DatePicker debutPicker;
     @FXML
-    private TableColumn<RapportMensuel, String> moisCol;
+    private DatePicker finPicker;
+
+    // ── KPI labels ────────────────────────────────────────────────────────
     @FXML
-    private TableColumn<RapportMensuel, Integer> nbVentesCol;
+    private Label kpiNbVentes;
     @FXML
-    private TableColumn<RapportMensuel, String> totalCol;
+    private Label kpiCaTotal;
     @FXML
-    private Label totalGeneralLabel;
+    private Label kpiPanierMoyen;
+
+    // ── Table mensuelle ───────────────────────────────────────────────────
+    @FXML
+    private TableView<RapportMensuel> mensuelTable;
+    @FXML
+    private TableColumn<RapportMensuel, String> mensuelMoisCol;
+    @FXML
+    private TableColumn<RapportMensuel, Integer> mensuelNbCol;
+    @FXML
+    private TableColumn<RapportMensuel, String> mensuelCaCol;
+
+    // ── Top médicaments ───────────────────────────────────────────────────
+    @FXML
+    private TableView<TopMedicament> topTable;
+    @FXML
+    private TableColumn<TopMedicament, String> topNomCol;
+    @FXML
+    private TableColumn<TopMedicament, Integer> topQteCol;
+    @FXML
+    private TableColumn<TopMedicament, String> topCaCol;
+
+    // ── Historique ventes ─────────────────────────────────────────────────
+    @FXML
+    private TableView<Vente> ventesTable;
+    @FXML
+    private TableColumn<Vente, String> vDateCol;
+    @FXML
+    private TableColumn<Vente, String> vMontantCol;
+    @FXML
+    private TableColumn<Vente, String> vOrdoCol;
+
+    // ── Détail lignes vente sélectionnée ─────────────────────────────────
+    @FXML
+    private TableView<VenteLigne> lignesTable;
+    @FXML
+    private TableColumn<VenteLigne, String> lgNomCol;
+    @FXML
+    private TableColumn<VenteLigne, Integer> lgQteCol;
+    @FXML
+    private TableColumn<VenteLigne, String> lgPrixCol;
+    @FXML
+    private TableColumn<VenteLigne, String> lgTotalCol;
 
     private final RapportService rapportService = new RapportService();
-    private List<RapportMensuel> rapports;
+
+    // Données chargées (pour export)
+    private List<RapportMensuel> rapportsMensuels;
+    private List<TopMedicament> topMedicaments;
+    private List<Vente> ventes;
+    private BigDecimal[] kpis;
+    private LocalDate periodeDebut;
+    private LocalDate periodeFin;
 
     @FXML
     public void initialize() {
-        moisCol.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getMois()));
-        nbVentesCol.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getNbVentes()).asObject());
-        totalCol.setCellValueFactory(cd -> new SimpleStringProperty(
-                String.format("%.2f EUR", cd.getValue().getTotalEuros())));
-        loadData();
+        // Configurer les cellValueFactory
+        mensuelMoisCol.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getMois()));
+        mensuelNbCol.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getNbVentes()).asObject());
+        mensuelCaCol.setCellValueFactory(cd -> new SimpleStringProperty(fmt(cd.getValue().getTotalEuros())));
+
+        topNomCol.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getNomCommercial()));
+        topQteCol.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getQuantiteTotale()).asObject());
+        topCaCol.setCellValueFactory(cd -> new SimpleStringProperty(fmt(cd.getValue().getCaGenere())));
+
+        vDateCol.setCellValueFactory(cd -> new SimpleStringProperty(
+                cd.getValue().getDateHeure() != null ? cd.getValue().getDateHeure().format(FMT) : ""));
+        vMontantCol.setCellValueFactory(cd -> new SimpleStringProperty(fmt(cd.getValue().getMontantTotal())));
+        vOrdoCol.setCellValueFactory(cd -> new SimpleStringProperty(
+                cd.getValue().isSurOrdonnance() ? "Oui" : "Non"));
+
+        lgNomCol.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getNomMedicament()));
+        lgQteCol.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getQuantite()).asObject());
+        lgPrixCol.setCellValueFactory(cd -> new SimpleStringProperty(fmt(cd.getValue().getPrixUnitaire())));
+        lgTotalCol.setCellValueFactory(cd -> new SimpleStringProperty(fmt(
+                cd.getValue().getPrixUnitaire().multiply(BigDecimal.valueOf(cd.getValue().getQuantite())))));
+
+        // Sur sélection d'une vente → charger ses lignes
+        ventesTable.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
+            if (sel != null) {
+                List<VenteLigne> lignes = rapportService.getLignesVente(sel.getId());
+                lignesTable.setItems(FXCollections.observableArrayList(lignes));
+            } else {
+                lignesTable.setItems(FXCollections.emptyObservableList());
+            }
+        });
+
+        // Période par défaut = mois courant
+        LocalDate now = LocalDate.now();
+        debutPicker.setValue(now.withDayOfMonth(1));
+        finPicker.setValue(now);
     }
 
-    private void loadData() {
+    @FXML
+    private void handleGenerer() {
+        periodeDebut = debutPicker.getValue();
+        periodeFin = finPicker.getValue();
+
         try {
-            rapports = rapportService.getRapportMensuel();
-            rapportTable.setItems(FXCollections.observableArrayList(rapports));
-            BigDecimal total = rapports.stream()
-                    .map(RapportMensuel::getTotalEuros).reduce(BigDecimal.ZERO, BigDecimal::add);
-            int nbV = rapports.stream().mapToInt(RapportMensuel::getNbVentes).sum();
-            totalGeneralLabel.setText(String.format("Total general : %d vente(s)  —  %.2f EUR", nbV, total));
+            kpis = rapportService.getKpis(periodeDebut, periodeFin);
+            rapportsMensuels = rapportService.getRapportMensuelPeriode(periodeDebut, periodeFin);
+            topMedicaments = rapportService.getTopMedicaments(periodeDebut, periodeFin);
+            ventes = rapportService.getVentesPeriode(periodeDebut, periodeFin);
+
+            kpiNbVentes.setText(kpis[0].toPlainString());
+            kpiCaTotal.setText(fmt(kpis[1]));
+            kpiPanierMoyen.setText(fmt(kpis[2]));
+
+            mensuelTable.setItems(FXCollections.observableArrayList(rapportsMensuels));
+            topTable.setItems(FXCollections.observableArrayList(topMedicaments));
+            ventesTable.setItems(FXCollections.observableArrayList(ventes));
+            lignesTable.setItems(FXCollections.emptyObservableList());
+
+            LOG.info("Rapport genere : {} ventes, CA={}", kpis[0], kpis[1]);
         } catch (Exception e) {
-            logger.error("Erreur chargement rapport", e);
-            totalGeneralLabel.setText("Erreur de chargement");
+            LOG.error("Erreur generation rapport", e);
+            new Alert(Alert.AlertType.ERROR, "Erreur : " + e.getMessage()).showAndWait();
         }
     }
 
-    // ── Export PDF ──────────────────────────────────────────────────────────
+    // ── PDF ───────────────────────────────────────────────────────────────
 
     @FXML
     private void exportPDF() {
+        if (ventes == null) {
+            noData();
+            return;
+        }
         FileChooser fc = new FileChooser();
-        fc.setTitle("Enregistrer le rapport PDF");
+        fc.setTitle("Enregistrer PDF");
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF (*.pdf)", "*.pdf"));
-        fc.setInitialFileName("rapport_ventes.pdf");
-        File file = fc.showSaveDialog(rapportTable.getScene().getWindow());
+        fc.setInitialFileName("rapport_sgpa.pdf");
+        java.io.File file = fc.showSaveDialog(mensuelTable.getScene().getWindow());
         if (file == null)
             return;
 
         try {
-            Document doc = new Document();
+            Document doc = new Document(PageSize.A4);
             PdfWriter.getInstance(doc, new FileOutputStream(file));
             doc.open();
 
-            // Titre
-            com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
-            doc.add(new Paragraph("Rapport des ventes mensuelles — SGPA Pharmacie", titleFont));
+            com.itextpdf.text.Font titleF = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+            com.itextpdf.text.Font h2F = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13,
+                    new BaseColor(46, 125, 50));
+            com.itextpdf.text.Font bodyF = FontFactory.getFont(FontFactory.HELVETICA, 10);
+
+            doc.add(new Paragraph("Rapport Financier SGPA", titleF));
+            doc.add(new Paragraph("Periode : " + fmt(periodeDebut) + " → " + fmt(periodeFin), bodyF));
             doc.add(new Paragraph(" "));
 
-            // Tableau PDF
-            PdfPTable table = new PdfPTable(3);
-            table.setWidthPercentage(100);
-            table.setWidths(new float[] { 2f, 2f, 3f });
+            // KPIs
+            doc.add(new Paragraph("Résumé global", h2F));
+            PdfPTable kpiTable = new PdfPTable(3);
+            kpiTable.setWidthPercentage(100);
+            for (String h : new String[] { "Nb ventes", "CA total (EUR)", "Panier moyen (EUR)" })
+                kpiTable.addCell(headerCell(h));
+            kpiTable.addCell(kpis[0].toPlainString());
+            kpiTable.addCell(fmt(kpis[1]));
+            kpiTable.addCell(fmt(kpis[2]));
+            doc.add(kpiTable);
+            doc.add(new Paragraph(" "));
 
-            com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, BaseColor.WHITE);
-            for (String h : new String[] { "Mois", "Nb ventes", "Total (EUR)" }) {
-                PdfPCell cell = new PdfPCell(new Phrase(h, headerFont));
-                cell.setBackgroundColor(new BaseColor(46, 125, 50));
-                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                cell.setPadding(6);
-                table.addCell(cell);
+            // CA par mois
+            doc.add(new Paragraph("CA mensuel", h2F));
+            PdfPTable mTable = new PdfPTable(3);
+            mTable.setWidthPercentage(100);
+            for (String h : new String[] { "Mois", "Nb ventes", "Total (EUR)" })
+                mTable.addCell(headerCell(h));
+            for (RapportMensuel r : rapportsMensuels) {
+                mTable.addCell(r.getMois());
+                mTable.addCell(String.valueOf(r.getNbVentes()));
+                mTable.addCell(fmt(r.getTotalEuros()));
             }
+            doc.add(mTable);
+            doc.add(new Paragraph(" "));
 
-            BigDecimal totalGeneral = BigDecimal.ZERO;
-            int totalVentes = 0;
-            for (RapportMensuel r : rapports) {
-                table.addCell(r.getMois());
-                table.addCell(String.valueOf(r.getNbVentes()));
-                table.addCell(String.format("%.2f", r.getTotalEuros()));
-                totalGeneral = totalGeneral.add(r.getTotalEuros());
-                totalVentes += r.getNbVentes();
+            // Top médicaments
+            doc.add(new Paragraph("Top médicaments vendus", h2F));
+            PdfPTable tTable = new PdfPTable(3);
+            tTable.setWidthPercentage(100);
+            for (String h : new String[] { "Medicament", "Qte vendue", "CA (EUR)" })
+                tTable.addCell(headerCell(h));
+            for (TopMedicament t : topMedicaments) {
+                tTable.addCell(t.getNomCommercial());
+                tTable.addCell(String.valueOf(t.getQuantiteTotale()));
+                tTable.addCell(fmt(t.getCaGenere()));
             }
+            doc.add(tTable);
+            doc.add(new Paragraph(" "));
 
-            com.itextpdf.text.Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
-            table.addCell(new Phrase("TOTAL", boldFont));
-            table.addCell(new Phrase(String.valueOf(totalVentes), boldFont));
-            table.addCell(new Phrase(String.format("%.2f", totalGeneral), boldFont));
+            // Historique ventes
+            doc.add(new Paragraph("Historique des ventes", h2F));
+            PdfPTable vTable = new PdfPTable(3);
+            vTable.setWidthPercentage(100);
+            for (String h : new String[] { "Date", "Montant (EUR)", "Ordonnance" })
+                vTable.addCell(headerCell(h));
+            for (Vente v : ventes) {
+                vTable.addCell(v.getDateHeure() != null ? v.getDateHeure().format(FMT) : "");
+                vTable.addCell(fmt(v.getMontantTotal()));
+                vTable.addCell(v.isSurOrdonnance() ? "Oui" : "Non");
+            }
+            doc.add(vTable);
 
-            doc.add(table);
             doc.close();
-            showInfo("PDF exporte :\n" + file.getAbsolutePath());
+            LOG.info("PDF exporte : {}", file.getAbsolutePath());
+            new Alert(Alert.AlertType.INFORMATION, "PDF exporte :\n" + file.getAbsolutePath()).showAndWait();
         } catch (Exception e) {
-            logger.error("Erreur export PDF", e);
-            showError("Erreur PDF : " + e.getMessage());
+            LOG.error("Erreur export PDF", e);
+            new Alert(Alert.AlertType.ERROR, "Erreur PDF : " + e.getMessage()).showAndWait();
         }
     }
 
-    // ── Export Excel ────────────────────────────────────────────────────────
+    // ── Excel ─────────────────────────────────────────────────────────────
 
     @FXML
     private void exportExcel() {
+        if (ventes == null) {
+            noData();
+            return;
+        }
         FileChooser fc = new FileChooser();
-        fc.setTitle("Enregistrer le rapport Excel");
+        fc.setTitle("Enregistrer Excel");
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
-        fc.setInitialFileName("rapport_ventes.xlsx");
-        File file = fc.showSaveDialog(rapportTable.getScene().getWindow());
+        fc.setInitialFileName("rapport_sgpa.xlsx");
+        java.io.File file = fc.showSaveDialog(mensuelTable.getScene().getWindow());
         if (file == null)
             return;
 
         try (Workbook wb = new XSSFWorkbook()) {
-            Sheet sheet = wb.createSheet("Rapport mensuel");
+            CellStyle hdrStyle = boldGreenStyle(wb);
 
-            // Style en-tête POI (noms qualifiés pour éviter l'ambiguité avec iText)
-            CellStyle headerStyle = wb.createCellStyle();
-            org.apache.poi.ss.usermodel.Font hFont = wb.createFont();
-            hFont.setBold(true);
-            headerStyle.setFont(hFont);
-            headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Feuille 1 — Résumé
+            Sheet s1 = wb.createSheet("Résumé");
+            writeRow(s1.createRow(0), hdrStyle, "Nb ventes", "CA total (EUR)", "Panier moyen (EUR)");
+            writeRow(s1.createRow(1), null, kpis[0].toPlainString(), fmt(kpis[1]), fmt(kpis[2]));
+            autoSize(s1, 3);
 
-            org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
-            String[] cols = { "Mois", "Nb ventes", "Total (EUR)" };
-            for (int i = 0; i < cols.length; i++) {
-                org.apache.poi.ss.usermodel.Cell c = headerRow.createCell(i);
-                c.setCellValue(cols[i]);
-                c.setCellStyle(headerStyle);
+            // Feuille 2 — CA mensuel
+            Sheet s2 = wb.createSheet("CA mensuel");
+            writeRow(s2.createRow(0), hdrStyle, "Mois", "Nb ventes", "Total (EUR)");
+            int ri = 1;
+            for (RapportMensuel r : rapportsMensuels)
+                writeRow(s2.createRow(ri++), null, r.getMois(), String.valueOf(r.getNbVentes()),
+                        fmt(r.getTotalEuros()));
+            autoSize(s2, 3);
+
+            // Feuille 3 — Ventes
+            Sheet s3 = wb.createSheet("Ventes");
+            writeRow(s3.createRow(0), hdrStyle, "ID", "Date", "Montant (EUR)", "Ordonnance");
+            ri = 1;
+            for (Vente v : ventes)
+                writeRow(s3.createRow(ri++), null,
+                        String.valueOf(v.getId()),
+                        v.getDateHeure() != null ? v.getDateHeure().format(FMT) : "",
+                        fmt(v.getMontantTotal()),
+                        v.isSurOrdonnance() ? "Oui" : "Non");
+            autoSize(s3, 4);
+
+            // Feuille 4 — Détails ventes (toutes les lignes)
+            Sheet s4 = wb.createSheet("Details ventes");
+            writeRow(s4.createRow(0), hdrStyle, "Vente ID", "Medicament", "Qte", "Prix unit.", "Total ligne");
+            ri = 1;
+            for (Vente v : ventes) {
+                for (VenteLigne l : rapportService.getLignesVente(v.getId())) {
+                    BigDecimal total = l.getPrixUnitaire().multiply(BigDecimal.valueOf(l.getQuantite()));
+                    writeRow(s4.createRow(ri++), null,
+                            String.valueOf(v.getId()),
+                            l.getNomMedicament(),
+                            String.valueOf(l.getQuantite()),
+                            fmt(l.getPrixUnitaire()),
+                            fmt(total));
+                }
             }
+            autoSize(s4, 5);
 
-            BigDecimal totalGeneral = BigDecimal.ZERO;
-            int totalVentes = 0;
-            int rowIdx = 1;
-            for (RapportMensuel r : rapports) {
-                org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(r.getMois());
-                row.createCell(1).setCellValue(r.getNbVentes());
-                row.createCell(2).setCellValue(r.getTotalEuros().doubleValue());
-                totalGeneral = totalGeneral.add(r.getTotalEuros());
-                totalVentes += r.getNbVentes();
-            }
-
-            // Ligne TOTAL
-            CellStyle boldStyle = wb.createCellStyle();
-            org.apache.poi.ss.usermodel.Font bFont = wb.createFont();
-            bFont.setBold(true);
-            boldStyle.setFont(bFont);
-            org.apache.poi.ss.usermodel.Row totalRow = sheet.createRow(rowIdx);
-            org.apache.poi.ss.usermodel.Cell c0 = totalRow.createCell(0);
-            c0.setCellValue("TOTAL");
-            c0.setCellStyle(boldStyle);
-            org.apache.poi.ss.usermodel.Cell c1 = totalRow.createCell(1);
-            c1.setCellValue(totalVentes);
-            c1.setCellStyle(boldStyle);
-            org.apache.poi.ss.usermodel.Cell c2 = totalRow.createCell(2);
-            c2.setCellValue(totalGeneral.doubleValue());
-            c2.setCellStyle(boldStyle);
-
-            for (int i = 0; i < 3; i++)
-                sheet.autoSizeColumn(i);
+            // Feuille 5 — Top médicaments
+            Sheet s5 = wb.createSheet("Top médicaments");
+            writeRow(s5.createRow(0), hdrStyle, "Medicament", "Qte vendue", "CA (EUR)");
+            ri = 1;
+            for (TopMedicament t : topMedicaments)
+                writeRow(s5.createRow(ri++), null,
+                        t.getNomCommercial(),
+                        String.valueOf(t.getQuantiteTotale()),
+                        fmt(t.getCaGenere()));
+            autoSize(s5, 3);
 
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 wb.write(fos);
             }
-            showInfo("Excel exporte :\n" + file.getAbsolutePath());
+            LOG.info("Excel exporte : {}", file.getAbsolutePath());
+            new Alert(Alert.AlertType.INFORMATION, "Excel exporte :\n" + file.getAbsolutePath()).showAndWait();
         } catch (Exception e) {
-            logger.error("Erreur export Excel", e);
-            showError("Erreur Excel : " + e.getMessage());
+            LOG.error("Erreur export Excel", e);
+            new Alert(Alert.AlertType.ERROR, "Erreur Excel : " + e.getMessage()).showAndWait();
         }
     }
 
-    private void showInfo(String msg) {
-        new Alert(Alert.AlertType.INFORMATION, msg).showAndWait();
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    private String fmt(BigDecimal v) {
+        return v == null ? "0.00" : String.format("%.2f", v);
     }
 
-    private void showError(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+    private String fmt(LocalDate d) {
+        return d == null ? "" : d.toString();
+    }
+
+    private void noData() {
+        new Alert(Alert.AlertType.WARNING, "Veuillez d'abord generer le rapport.").showAndWait();
+    }
+
+    private PdfPCell headerCell(String text) {
+        com.itextpdf.text.Font f = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE);
+        PdfPCell c = new PdfPCell(new Phrase(text, f));
+        c.setBackgroundColor(new BaseColor(46, 125, 50));
+        c.setPadding(5);
+        return c;
+    }
+
+    private CellStyle boldGreenStyle(Workbook wb) {
+        CellStyle s = wb.createCellStyle();
+        org.apache.poi.ss.usermodel.Font f = wb.createFont();
+        f.setBold(true);
+        s.setFont(f);
+        s.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+        s.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        return s;
+    }
+
+    private void writeRow(org.apache.poi.ss.usermodel.Row row, CellStyle style, String... vals) {
+        for (int i = 0; i < vals.length; i++) {
+            org.apache.poi.ss.usermodel.Cell c = row.createCell(i);
+            c.setCellValue(vals[i]);
+            if (style != null)
+                c.setCellStyle(style);
+        }
+    }
+
+    private void autoSize(Sheet sheet, int cols) {
+        for (int i = 0; i < cols; i++)
+            sheet.autoSizeColumn(i);
     }
 }
